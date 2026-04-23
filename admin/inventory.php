@@ -223,7 +223,7 @@ $title = ucfirst($type) . "s Inventory";
                         <?php endif; ?>
                         <div>
                             <label class="block text-[14px] font-black uppercase tracking-[0.2em] text-gray-400 mb-3 ml-1">Name / Title</label>
-                            <input type="text" name="name" value="<?php echo $editItem ? htmlspecialchars($editItem['name']) : ''; ?>" required class="w-full bg-gray-50 border border-gray-100 rounded-2xl px-8 py-5 text-[16px] focus:outline-none focus:border-amber-500/50 transition-all">
+                            <input type="text" name="name" id="nameInput" value="<?php echo $editItem ? htmlspecialchars($editItem['name']) : ''; ?>" required class="w-full bg-gray-50 border border-gray-100 rounded-2xl px-8 py-5 text-[16px] focus:outline-none focus:border-amber-500/50 transition-all">
                         </div>
                         <div>
                             <label class="block text-[14px] font-black uppercase tracking-[0.2em] text-gray-400 mb-3 ml-1">Internal Reference ID</label>
@@ -258,6 +258,18 @@ $title = ucfirst($type) . "s Inventory";
                                     document.getElementById('preview-img').src = URL.createObjectURL(file);
                                     document.getElementById('preview-img').classList.remove('hidden');
                                     document.getElementById('upload-prompt').classList.add('hidden');
+
+                                    // Auto-populate name from filename
+                                    const nameInput = document.getElementById('nameInput');
+                                    if (nameInput) {
+                                        const fileName = file.name.split('.').slice(0, -1).join('.');
+                                        
+                                        // Fill name if empty OR if we are in "Add New" mode (not editing)
+                                        const isEdit = document.querySelector('input[name="id"]') !== null;
+                                        if (!isEdit || nameInput.value.trim() === '') {
+                                            nameInput.value = fileName;
+                                        }
+                                    }
                                 }
                             };
                         </script>
