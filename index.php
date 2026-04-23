@@ -101,23 +101,23 @@ $defArt   = !empty($arts) ? json_encode($arts[0]) : 'null';
                     <!-- Canvas Canvas Logic -->
                     <div class="relative w-full h-full flex items-center justify-center">
                         
-                        <!-- 1. BASE: LINER -->
-                        <div id="v-liner-layer" class="liner-layer absolute z-0 w-[86%] h-[80%] flex items-center justify-center overflow-hidden shadow-2xl">
+                        <!-- 1. BASE: FRAME -->
+                        <div class="absolute z-0 w-full h-full pointer-events-none">
+                            <img id="v-frame-img" src="" class="w-full h-full object-fill" alt="Frame">
+                        </div>
+
+                        <!-- 2. MIDDLE: LINER -->
+                        <div id="v-liner-layer" class="liner-layer absolute z-10 w-[91.5%] h-[85%] flex items-center justify-center overflow-hidden shadow-2xl">
                              <img id="v-liner-img" src="" class="w-full h-full object-fill hidden" alt="Liner">
                              <div id="v-liner-empty" class="w-full h-full bg-white/50 backdrop-blur-sm"></div>
                         </div>
 
-                        <!-- 2. MIDDLE: ART -->
-                        <div id="v-art-container" class="art-layer absolute z-10 flex items-center justify-center pointer-events-none" style="width: 80%; height: 72%;">
+                        <!-- 3. TOP: ART -->
+                        <div id="v-art-container" class="art-layer absolute z-20 flex items-center justify-center pointer-events-none" style="width: 86%; height: 76%;">
                             <div class="w-full h-full relative shadow-[0_10px_60px_rgba(0,0,0,0.4)] bg-black overflow-hidden">
                                 <img id="v-art-img" src="" class="w-full h-full object-cover" alt="Art">
                                 <div class="absolute inset-0 bg-gradient-to-tr from-white/10 via-transparent to-white/10 pointer-events-none opacity-40"></div>
                             </div>
-                        </div>
-
-                        <!-- 3. TOP: FRAME -->
-                        <div class="absolute z-20 w-full h-full pointer-events-none">
-                            <img id="v-frame-img" src="" class="w-full h-full object-fill" alt="Frame">
                         </div>
 
                         <!-- Finisher Shade -->
@@ -273,16 +273,16 @@ $defArt   = !empty($arts) ? json_encode($arts[0]) : 'null';
                 document.getElementById('s-liner-name').innerText = state.liner.name;
                 
                 // Adaptive Scale
-                document.getElementById('v-art-container').style.width = '80%';
-                document.getElementById('v-art-container').style.height = '72%';
+                document.getElementById('v-art-container').style.width = '86%';
+                document.getElementById('v-art-container').style.height = '76%';
             } else {
                 document.getElementById('v-liner-img').classList.add('hidden');
                 document.getElementById('v-liner-empty').classList.remove('hidden');
                 document.getElementById('s-liner-name').innerText = 'None';
                 
                 // Adaptive Scale: Growth when no liner
-                document.getElementById('v-art-container').style.width = '86%';
-                document.getElementById('v-art-container').style.height = '80%';
+                document.getElementById('v-art-container').style.width = '91.5%';
+                document.getElementById('v-art-container').style.height = '85%';
             }
 
             if (state.art) {
