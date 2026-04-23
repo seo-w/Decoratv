@@ -1,0 +1,318 @@
+import React, { useState, useEffect } from 'react';
+import { ImageIcon, Frame, Maximize2, ShoppingCart, Check, Info } from 'lucide-react';
+
+// --- CONFIGURACIÓN DE DATOS (SIN PRECIOS) ---
+const FRAMES = [
+{
+id: 'f1',
+name: 'Biltmore Black Flat',
+texture:
+'https://web.archive.org/web/20260409220700im_/https://app.avisp.co/storage/frames/GroupC_L822831_Classic_Biltmore_Black_-_Flat.png'
+},
+{
+id: 'f2',
+name: 'Madera Natural',
+texture: 'https://images.unsplash.com/photo-1582555172866-f73bb12a2ab3?w=800&q=80'
+}
+];
+
+const LINERS = [
+{
+id: 'l1',
+name: 'Natural Wood Liner',
+texture: 'https://web.archive.org/web/20260409221806im_/https://app.avisp.co/storage/liners/GroupBC_VWD07N_Natural.png'
+},
+{
+id: 'none',
+name: 'Sin Liner',
+texture: null
+}
+];
+
+const ARTS = [
+{
+id: 'a1',
+name: 'Decora Art Collection',
+url: 'https://web.archive.org/web/20260409220600im_/https://app.avisp.co/storage/Frame_UX/decoraArt.jpg',
+artist: 'decoratv Exclusive'
+},
+{
+id: 'a2',
+name: 'Horizonte Etéreo',
+url: 'https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?w=1000&q=80',
+artist: 'Elena R.'
+}
+];
+
+const LOGO_URL = "https://avitp.com/wp-content/uploads/2015/06/logo.png";
+
+export default function App() {
+const [selectedFrame, setSelectedFrame] = useState(FRAMES[0]);
+const [selectedLiner, setSelectedLiner] = useState(LINERS[0]);
+const [selectedArt, setSelectedArt] = useState(ARTS[0]);
+const [activeTab, setActiveTab] = useState('frame');
+
+useEffect(() => {
+document.title = "decoratv | Simulador Visual";
+}, []);
+
+const renderSelector = () => {
+switch (activeTab) {
+case 'frame':
+return (
+<div className="grid grid-cols-2 gap-4 animate-in fade-in duration-300">
+    {FRAMES.map((f) => (
+    <button key={f.id} onClick={()=> setSelectedFrame(f)}
+        className={`group relative flex flex-col p-2 rounded-xl border-2 transition-all ${
+        selectedFrame.id === f.id ? 'border-amber-600 bg-amber-50 shadow-md' : 'border-gray-100 hover:border-gray-200
+        bg-white'
+        }`}
+        >
+        <div className="w-full aspect-square rounded-lg overflow-hidden mb-2 bg-gray-50 relative">
+            <img src={f.texture} alt={f.name}
+                className="absolute top-0 left-0 w-[500%] max-w-none h-auto object-cover origin-top-left" style={{
+                objectPosition: 'left top' }} />
+        </div>
+        <span className="text-[10px] font-bold text-gray-800 text-center uppercase truncate w-full">{f.name}</span>
+        {selectedFrame.id === f.id && <div
+            className="absolute top-1 right-1 bg-amber-600 text-white rounded-full p-0.5">
+            <Check size={8} strokeWidth={4} />
+        </div>}
+    </button>
+    ))}
+</div>
+);
+case 'liner':
+return (
+<div className="grid grid-cols-2 gap-4 animate-in fade-in duration-300">
+    {LINERS.map((l) => (
+    <button key={l.id} onClick={()=> setSelectedLiner(l)}
+        className={`group relative flex flex-col p-2 rounded-xl border-2 transition-all ${
+        selectedLiner.id === l.id ? 'border-amber-600 bg-amber-50 shadow-md' : 'border-gray-100 hover:border-gray-200
+        bg-white'
+        }`}
+        >
+        <div className="w-full aspect-square rounded-lg overflow-hidden mb-2 bg-gray-50 relative">
+            {l.texture ? (
+            <img src={l.texture} alt={l.name}
+                className="absolute top-0 left-0 w-[500%] max-w-none h-auto object-cover origin-top-left" style={{
+                objectPosition: 'left top' }} />
+            ) : (
+            <div
+                className="w-full h-full flex items-center justify-center text-gray-300 text-[8px] font-bold uppercase tracking-widest text-center px-1">
+                Sin Liner</div>
+            )}
+        </div>
+        <span className="text-[10px] font-bold text-gray-800 text-center uppercase truncate w-full">{l.name}</span>
+        {selectedLiner.id === l.id && <div
+            className="absolute top-1 right-1 bg-amber-600 text-white rounded-full p-0.5">
+            <Check size={8} strokeWidth={4} />
+        </div>}
+    </button>
+    ))}
+</div>
+);
+case 'art':
+return (
+<div className="grid grid-cols-1 gap-3 animate-in fade-in duration-300">
+    {ARTS.map((a) => (
+    <button key={a.id} onClick={()=> setSelectedArt(a)}
+        className={`group relative flex flex-col p-2 rounded-xl border-2 transition-all ${
+        selectedArt.id === a.id ? 'border-amber-600 bg-amber-50 shadow-md' : 'border-gray-100 hover:border-gray-200
+        bg-white'
+        }`}
+        >
+        <div className="w-full aspect-video rounded-lg overflow-hidden mb-1 bg-gray-200">
+            <img src={a.url} alt={a.name} className="w-full h-full object-cover" />
+        </div>
+        <div className="flex justify-between items-center px-1">
+            <span className="text-[10px] font-bold text-gray-800 uppercase">{a.name}</span>
+            <span className="text-[9px] text-gray-400 italic uppercase tracking-tighter">{a.artist}</span>
+        </div>
+    </button>
+    ))}
+</div>
+);
+default:
+return null;
+}
+};
+
+return (
+<div className="min-h-screen bg-gray-50 font-sans text-gray-900 p-4 md:p-10 selection:bg-amber-100">
+    <div className="max-w-7xl mx-auto">
+
+        {/* CABECERA BRANDING - Recupera bordes redondeados */}
+        <header className="flex flex-col md:flex-row items-center justify-between gap-8 mb-10">
+            <div className="flex items-center gap-6">
+                <div className="bg-white p-4 rounded-[2rem] shadow-sm border border-gray-100">
+                    <img src={LOGO_URL} alt="decoratv logo" className="h-10 w-auto" />
+                </div>
+                <div>
+                    <h1 className="text-4xl font-black uppercase tracking-tighter leading-none">decoratv</h1>
+                    <div className="flex items-center gap-2 mt-2">
+                        <div className="h-[2px] w-6 bg-amber-600"></div>
+                        <p className="text-[10px] font-black text-amber-600 uppercase tracking-[0.4em]">Simulador
+                            Premium</p>
+                    </div>
+                </div>
+            </div>
+
+            <button
+                className="bg-gray-900 text-white px-10 py-5 rounded-[2rem] font-bold text-[11px] uppercase tracking-widest hover:bg-amber-600 transition-all shadow-xl hover:-translate-y-0.5 flex items-center gap-3">
+                <ShoppingCart size={18} />
+                Cotizar Proyecto
+            </button>
+        </header>
+
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
+
+            {/* ÁREA DE VISUALIZACIÓN - Se mantiene sin redondeo según petición */}
+            <div className="lg:col-span-8">
+                <div
+                    className="bg-white rounded-none shadow-2xl border border-gray-100 p-0 aspect-[794/455] flex items-center justify-center relative overflow-hidden group">
+                    <div className="absolute inset-0 opacity-[0.03] pointer-events-none"
+                        style={{backgroundImage: 'radial-gradient(#000 1.5px, transparent 1.5px)' ,
+                        backgroundSize: '40px 40px' }}></div>
+
+                    <div className="relative w-full aspect-[794/455] flex items-center justify-center">
+
+                        {/* 1. CAPA BASE: EL LINER */}
+                        <div
+                            className="absolute z-0 w-[85%] h-[78%] flex items-center justify-center transition-all duration-700 overflow-hidden shadow-2xl">
+                            {selectedLiner.texture ? (
+                            <img src={selectedLiner.texture} className="w-full h-full object-fill animate-in fade-in"
+                                alt="Liner Base" />
+                            ) : (
+                            <div className="w-full h-full bg-white/50 backdrop-blur-sm" />
+                            )}
+                        </div>
+
+                        {/* 2. CAPA MEDIA: EL ARTE */}
+                        <div className="absolute z-10 flex items-center justify-center pointer-events-none transition-all duration-500 ease-in-out"
+                            style={{ width: selectedLiner.id==='none' ? '85%' : '80%' , height:
+                            selectedLiner.id==='none' ? '78%' : '70%' }}>
+                            <div
+                                className="w-full h-full relative shadow-[0_10px_40px_rgba(0,0,0,0.3)] overflow-hidden bg-black rounded-none">
+                                <img src={selectedArt.url}
+                                    className="w-full h-full object-cover animate-in fade-in duration-700"
+                                    alt="Arte Obra" />
+                                <div
+                                    className="absolute inset-0 bg-gradient-to-tr from-white/10 via-transparent to-white/10 pointer-events-none opacity-40">
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* 3. CAPA FRENTE: EL MARCO */}
+                        <div className="absolute z-20 w-full h-full pointer-events-none">
+                            <img src={selectedFrame.texture} className="w-full h-full object-fill"
+                                alt="Marco Decoratv" />
+                        </div>
+
+                        {/* Efectos finales */}
+                        <div
+                            className="absolute inset-0 shadow-[inset_0_0_60px_rgba(0,0,0,0.3)] pointer-events-none z-30">
+                        </div>
+                    </div>
+                </div>
+
+                {/* NOTA ACLARATORIA */}
+                <p className="text-center text-[10px] text-gray-400 mt-6 font-medium italic uppercase tracking-wider">
+                    This layout is not to scale
+                </p>
+
+                {/* FICHA TÉCNICA DE SELECCIÓN - Recupera bordes redondeados */}
+                <div className="mt-8 grid grid-cols-3 gap-6">
+                    {[
+                    { l: 'Marco Seleccionado', v: selectedFrame.name, c: 'amber', i: Frame },
+                    { l: 'Estilo de Liner', v: selectedLiner.name, c: 'blue', i: Maximize2 },
+                    { l: 'Obra de Arte', v: selectedArt.name, c: 'emerald', i: ImageIcon }
+                    ].map((item, idx) => (
+                    <div key={idx}
+                        className="bg-white/50 backdrop-blur-sm p-5 rounded-[2rem] border border-white shadow-sm flex flex-col items-center">
+                        <div className={`w-8 h-8 rounded-xl bg-${item.c}-100 flex items-center justify-center
+                            text-${item.c}-600 mb-2`}>
+                            <item.i size={16} />
+                        </div>
+                        <p
+                            className="text-[9px] text-gray-400 font-black uppercase tracking-widest leading-none mb-1 text-center">
+                            {item.l}</p>
+                        <p className="text-[11px] font-black text-center truncate w-full">{item.v}</p>
+                    </div>
+                    ))}
+                </div>
+            </div>
+
+            {/* PANEL DE CONTROL - Recupera bordes redondeados */}
+            <div className="lg:col-span-4">
+                <div
+                    className="bg-white rounded-[3rem] shadow-2xl border border-gray-100 flex flex-col h-[650px] overflow-hidden">
+                    <div className="p-3 bg-gray-50/50">
+                        <nav className="flex w-full bg-white rounded-2xl p-1.5 shadow-sm border border-gray-100">
+                            {['frame', 'liner', 'art'].map((tab) => (
+                            <button key={tab} onClick={()=> setActiveTab(tab)}
+                                className={`flex-1 flex flex-col items-center py-3 rounded-xl transition-all ${
+                                activeTab === tab ? 'bg-gray-900 text-white shadow-xl' : 'text-gray-400
+                                hover:bg-gray-50'
+                                }`}
+                                >
+                                <span className="text-[10px] font-black uppercase tracking-widest">
+                                    {tab === 'frame' ? 'Marcos' : tab === 'liner' ? 'Liners' : 'Arte'}
+                                </span>
+                            </button>
+                            ))}
+                        </nav>
+                    </div>
+
+                    <div className="flex-1 overflow-y-auto px-8 pb-8 custom-scrollbar">
+                        <div className="mt-4">
+                            <h2 className="text-[10px] font-black text-gray-300 uppercase tracking-[0.4em] mb-6">
+                                Configuración</h2>
+                            {renderSelector()}
+                        </div>
+                    </div>
+
+                    <div className="p-8 bg-gray-50 border-t border-gray-100 space-y-4">
+                        <div className="flex justify-center items-center px-2">
+                            <div
+                                className="bg-amber-100 text-amber-700 px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest text-center">
+                                Configuración Personalizada
+                            </div>
+                        </div>
+                        <button
+                            className="w-full bg-amber-600 hover:bg-amber-700 text-white py-6 rounded-[1.5rem] font-black uppercase tracking-[0.2em] text-[10px] shadow-xl shadow-amber-100 transition-all active:scale-95">
+                            Confirmar Selección
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        {
+            ` .custom-scrollbar::-webkit-scrollbar {
+                width: 4px;
+            }
+
+            .custom-scrollbar::-webkit-scrollbar-thumb {
+                background: #e5e7eb;
+                border-radius: 10px;
+            }
+
+            @keyframes fade-in {
+                from {
+                    opacity: 0;
+                }
+
+                to {
+                    opacity: 1;
+                }
+            }
+
+            `
+        }
+    </style>
+</div>
+);
+}
