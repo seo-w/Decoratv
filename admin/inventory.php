@@ -312,7 +312,7 @@ $title = ucfirst($type) . "s Inventory";
                                 <?php else: foreach ($items as $item): ?>
                                     <tr class="hover:bg-gray-50/50 transition-colors">
                                         <td class="px-10 py-8">
-                                            <div class="img-preview-container group shadow-sm">
+                                            <div class="img-preview-container group shadow-sm cursor-pointer" onclick="openLightbox('../<?php echo $item['image_path']; ?>')">
                                                 <img src="../<?php echo $item['image_path']; ?>" class="<?php echo $item['type']==='art'?'img-preview-full':'img-preview-zoom'; ?>" alt="Preview">
                                                 <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                                                     <i class="fa-solid fa-magnifying-glass text-white text-[16px]"></i>
@@ -351,5 +351,37 @@ $title = ucfirst($type) . "s Inventory";
         </div>
     </main>
 
+    <!-- Lightbox Modal -->
+    <div id="lightbox-modal" onclick="if(event.target === this) closeLightbox()" class="fixed inset-0 bg-black/90 backdrop-blur-sm z-[100] hidden items-center justify-center p-4 md:p-10 cursor-pointer">
+        <button onclick="closeLightbox()" class="absolute top-10 right-10 text-white/50 hover:text-white transition-colors z-50">
+            <i class="fa-solid fa-xmark text-3xl"></i>
+        </button>
+        <div class="max-w-5xl w-full h-full flex items-center justify-center pointer-events-none">
+            <img id="lightbox-img" src="" class="max-w-full max-h-full object-contain shadow-2xl rounded-lg">
+        </div>
+    </div>
+
+    <script>
+        function openLightbox(src) {
+            const modal = document.getElementById('lightbox-modal');
+            const img = document.getElementById('lightbox-img');
+            img.src = src;
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            document.body.style.overflow = 'hidden'; // Prevent scrolling
+        }
+
+        function closeLightbox() {
+            const modal = document.getElementById('lightbox-modal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+            document.body.style.overflow = ''; // Restore scrolling
+        }
+
+        // Close on Escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeLightbox();
+        });
+    </script>
 </body>
 </html>
