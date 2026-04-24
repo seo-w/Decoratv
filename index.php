@@ -325,7 +325,7 @@ $defArt   = !empty($arts) ? json_encode($arts[0]) : 'null';
                 if (item.image_path) {
                     // Zoom logic for frames/liners
                     let zoomClass = (state.activeTab !== 'art') ? 'zoom-thumbnail' : 'w-full h-full object-cover';
-                    imgHtml = `<img src="${item.image_path}" class="${zoomClass}">`;
+                    imgHtml = `<img src="${item.image_path}" class="${zoomClass}" loading="lazy">`;
                 } else {
                     imgHtml = `<div class="w-full h-full flex items-center justify-center text-[16px] font-black uppercase text-gray-300">None</div>`;
                 }
