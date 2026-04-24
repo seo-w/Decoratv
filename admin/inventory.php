@@ -361,6 +361,11 @@ $title = ucfirst($type) . "s Inventory";
         </div>
     </div>
 
+    <!-- Back to Top Button -->
+    <button id="backToTop" onclick="scrollToTop()" class="fixed bottom-10 right-10 w-12 h-12 bg-gray-900 text-white rounded-2xl shadow-2xl flex items-center justify-center opacity-0 translate-y-20 pointer-events-none transition-all duration-500 hover:bg-amber-600 z-[90] active:scale-95">
+        <i class="fa-solid fa-arrow-up text-lg"></i>
+    </button>
+
     <script>
         function openLightbox(src) {
             const modal = document.getElementById('lightbox-modal');
@@ -382,6 +387,32 @@ $title = ucfirst($type) . "s Inventory";
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') closeLightbox();
         });
+
+        // Back to Top Logic
+        const backToTopBtn = document.getElementById('backToTop');
+        const mainContent = document.querySelector('main');
+
+        function handleScroll() {
+            const scrollTop = (mainContent ? mainContent.scrollTop : 0) || document.documentElement.scrollTop || window.pageYOffset;
+            
+            if (scrollTop > 200) {
+                backToTopBtn.classList.remove('opacity-0', 'translate-y-20', 'pointer-events-none');
+                backToTopBtn.classList.add('opacity-100', 'translate-y-0');
+            } else {
+                backToTopBtn.classList.add('opacity-0', 'translate-y-20', 'pointer-events-none');
+                backToTopBtn.classList.remove('opacity-100', 'translate-y-0');
+            }
+        }
+
+        if (mainContent) mainContent.addEventListener('scroll', handleScroll);
+        window.addEventListener('scroll', handleScroll);
+
+        function scrollToTop() {
+            const scrollConfig = { top: 0, behavior: 'smooth' };
+            if (mainContent) mainContent.scrollTo(scrollConfig);
+            window.scrollTo(scrollConfig);
+            document.documentElement.scrollTo(scrollConfig);
+        }
     </script>
 </body>
 </html>

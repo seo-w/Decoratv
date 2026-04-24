@@ -180,6 +180,11 @@ $defArt   = !empty($arts) ? json_encode($arts[0]) : 'null';
                             Confirm Design
                         </button>
                     </div>
+
+                    <!-- Sidebar Back to Top -->
+                    <button id="sidebarToTop" onclick="scrollSidebarTop()" class="absolute bottom-32 right-12 w-12 h-12 bg-gray-900/80 text-white rounded-full shadow-lg flex items-center justify-center opacity-0 translate-y-10 pointer-events-none transition-all duration-300 hover:bg-amber-600 z-50">
+                        <i class="fa-solid fa-arrow-up text-sm"></i>
+                    </button>
                 </div>
             </div>
 
@@ -409,6 +414,26 @@ $defArt   = !empty($arts) ? json_encode($arts[0]) : 'null';
 
         // Init
         updateUI();
+
+        // Sidebar Back to Top Logic
+        const sidebarScroll = document.querySelector('.custom-scrollbar');
+        const sidebarBtn = document.getElementById('sidebarToTop');
+
+        if (sidebarScroll && sidebarBtn) {
+            sidebarScroll.addEventListener('scroll', () => {
+                if (sidebarScroll.scrollTop > 300) {
+                    sidebarBtn.classList.remove('opacity-0', 'translate-y-10', 'pointer-events-none');
+                    sidebarBtn.classList.add('opacity-100', 'translate-y-0');
+                } else {
+                    sidebarBtn.classList.add('opacity-0', 'translate-y-10', 'pointer-events-none');
+                    sidebarBtn.classList.remove('opacity-100', 'translate-y-0');
+                }
+            });
+        }
+
+        function scrollSidebarTop() {
+            sidebarScroll.scrollTo({ top: 0, behavior: 'smooth' });
+        }
     </script>
 </body>
 </html>
