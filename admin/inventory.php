@@ -227,7 +227,7 @@ $title = ucfirst($type) . "s Inventory";
                         </div>
                         <div>
                             <label class="block text-[14px] font-black uppercase tracking-[0.2em] text-gray-400 mb-3 ml-1">Internal Reference ID</label>
-                            <input type="text" name="internal_id" value="<?php echo $editItem ? htmlspecialchars($editItem['internal_id']) : ''; ?>" placeholder="e.g. F123-B" required class="w-full bg-gray-50 border border-gray-100 rounded-2xl px-8 py-5 text-[16px] focus:outline-none focus:border-amber-500/50 transition-all">
+                            <input type="text" name="internal_id" id="internalIdInput" value="<?php echo $editItem ? htmlspecialchars($editItem['internal_id']) : ''; ?>" placeholder="e.g. F123-B" required class="w-full bg-gray-50 border border-gray-100 rounded-2xl px-8 py-5 text-[16px] focus:outline-none focus:border-amber-500/50 transition-all">
                         </div>
                         <?php if ($type === 'art'): ?>
                         <div>
@@ -259,15 +259,26 @@ $title = ucfirst($type) . "s Inventory";
                                     document.getElementById('preview-img').classList.remove('hidden');
                                     document.getElementById('upload-prompt').classList.add('hidden');
 
-                                    // Auto-populate name from filename
+                                    // Auto-populate name and reference from filename
                                     const nameInput = document.getElementById('nameInput');
-                                    if (nameInput) {
+                                    const internalIdInput = document.getElementById('internalIdInput');
+                                    if (nameInput || internalIdInput) {
                                         const fileName = file.name.split('.').slice(0, -1).join('.');
                                         
-                                        // Fill name if empty OR if we are in "Add New" mode (not editing)
+                                        // Replace underscores with spaces
+                                        const cleanName = fileName.replace(/_/g, ' ');
+                                        
+                                        // Extract first part as reference
+                                        const reference = cleanName.split(' ')[0];
+
                                         const isEdit = document.querySelector('input[name="id"]') !== null;
-                                        if (!isEdit || nameInput.value.trim() === '') {
-                                            nameInput.value = fileName;
+                                        
+                                        if (nameInput && (!isEdit || nameInput.value.trim() === '')) {
+                                            nameInput.value = cleanName;
+                                        }
+                                        
+                                        if (internalIdInput && (!isEdit || internalIdInput.value.trim() === '')) {
+                                            internalIdInput.value = reference;
                                         }
                                     }
                                 }
