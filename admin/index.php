@@ -142,151 +142,146 @@ require_login();
             </a>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-10">
-            <!-- Recent Quotes Table -->
-            <div class="lg:col-span-2">
-                <div class="bg-white card overflow-hidden">
-                    <div class="px-10 py-8 border-b border-gray-50 flex justify-between items-center">
-                        <h3 class="text-[16px] font-black uppercase tracking-widest text-gray-500">Recent Customer Inquiries</h3>
-                        <a href="inquiries.php" class="bg-gray-100 hover:bg-gray-200 text-gray-600 text-[12px] px-6 py-2.5 rounded-full font-black uppercase tracking-widest transition-all">View All</a>
-                    </div>
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left">
-                            <thead class="bg-gray-50/50 text-[14px] text-gray-400 font-black uppercase tracking-widest">
+        <!-- Recent Quotes Table -->
+        <div class="mb-10">
+            <div class="bg-white card overflow-hidden">
+                <div class="px-10 py-8 border-b border-gray-50 flex justify-between items-center">
+                    <h3 class="text-[16px] font-black uppercase tracking-widest text-gray-500">Recent Customer Inquiries</h3>
+                    <a href="inquiries.php" class="bg-gray-100 hover:bg-gray-200 text-gray-600 text-[12px] px-6 py-2.5 rounded-full font-black uppercase tracking-widest transition-all">View All</a>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left">
+                        <thead class="bg-gray-50/50 text-[14px] text-gray-400 font-black uppercase tracking-widest">
+                            <tr>
+                                <th class="px-10 py-6">Client</th>
+                                <th class="px-10 py-6">Selection Summary</th>
+                                <th class="px-10 py-6">Status</th>
+                                <th class="px-10 py-6">Date</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-50 text-[11px]">
+                            <?php
+                            $quotes = $pdo->query("SELECT * FROM quotes ORDER BY created_at DESC LIMIT 5")->fetchAll();
+                            if (empty($quotes)): ?>
                                 <tr>
-                                    <th class="px-10 py-6">Client</th>
-                                    <th class="px-10 py-6">Selection Summary</th>
-                                    <th class="px-10 py-6">Status</th>
-                                    <th class="px-10 py-6">Date</th>
+                                    <td colspan="4"
+                                        class="px-8 py-10 text-center text-gray-400 uppercase font-bold tracking-widest">
+                                        No inquiries registered yet</td>
                                 </tr>
-                            </thead>
-                            <tbody class="divide-y divide-gray-50 text-[11px]">
-                                <?php
-                                $quotes = $pdo->query("SELECT * FROM quotes ORDER BY created_at DESC LIMIT 5")->fetchAll();
-                                if (empty($quotes)): ?>
-                                    <tr>
-                                        <td colspan="4"
-                                            class="px-8 py-10 text-center text-gray-400 uppercase font-bold tracking-widest">
-                                            No inquiries registered yet</td>
-                                    </tr>
-                                <?php else:
-                                    foreach ($quotes as $q):
-                                        $sel = json_decode($q['selection_json'], true);
-                                        ?>
-                                        <tr class="hover:bg-gray-50/50 transition-colors">
-                                            <td class="px-10 py-8">
-                                                <p class="text-[16px] font-black text-gray-800 uppercase">
-                                                    <?php echo htmlspecialchars($q['customer_name'] . ' ' . ($q['customer_last_name'] ?? '')); ?>
+                            <?php else:
+                                foreach ($quotes as $q):
+                                    $sel = json_decode($q['selection_json'], true);
+                                    ?>
+                                    <tr class="hover:bg-gray-50/50 transition-colors">
+                                        <td class="px-10 py-8">
+                                            <p class="text-[16px] font-black text-gray-800 uppercase">
+                                                <?php echo htmlspecialchars($q['customer_name'] . ' ' . ($q['customer_last_name'] ?? '')); ?>
+                                            </p>
+                                            <p class="text-[14px] text-gray-400 font-medium lowercase mb-1">
+                                                <?php echo htmlspecialchars($q['customer_email']); ?></p>
+                                            <?php if (!empty($q['customer_phone'])): ?>
+                                                <p
+                                                    class="text-[12px] text-amber-600 font-black uppercase tracking-widest flex items-center gap-2">
+                                                    <i class="fa-solid fa-phone text-[10px]"></i>
+                                                    <?php echo htmlspecialchars($q['customer_phone']); ?>
                                                 </p>
-                                                <p class="text-[14px] text-gray-400 font-medium lowercase mb-1">
-                                                    <?php echo htmlspecialchars($q['customer_email']); ?></p>
-                                                <?php if (!empty($q['customer_phone'])): ?>
-                                                    <p
-                                                        class="text-[12px] text-amber-600 font-black uppercase tracking-widest flex items-center gap-2">
-                                                        <i class="fa-solid fa-phone text-[10px]"></i>
-                                                        <?php echo htmlspecialchars($q['customer_phone']); ?>
-                                                    </p>
-                                                <?php endif; ?>
-                                            </td>
-                                            <td class="px-10 py-8">
-                                                <div class="space-y-2">
-                                                    <div class="flex items-center gap-2">
-                                                        <span
-                                                            class="text-[10px] bg-gray-900 text-white px-2 py-0.5 rounded font-black uppercase tracking-widest">Frame</span>
-                                                        <span
-                                                            class="text-[14px] font-black text-gray-700 uppercase"><?php echo htmlspecialchars($sel['frame_name'] ?? 'N/A'); ?></span>
-                                                        <span
-                                                            class="text-[10px] text-amber-600 font-black uppercase tracking-widest">[<?php echo htmlspecialchars($sel['frame_id'] ?? '-'); ?>]</span>
-                                                    </div>
-                                                    <div class="flex items-center gap-2">
-                                                        <span
-                                                            class="text-[10px] bg-gray-400 text-white px-2 py-0.5 rounded font-black uppercase tracking-widest">Liner</span>
-                                                        <span
-                                                            class="text-[14px] font-bold text-gray-600 uppercase"><?php echo htmlspecialchars($sel['liner_name'] ?? 'None'); ?></span>
-                                                        <span
-                                                            class="text-[10px] text-gray-400 font-black uppercase tracking-widest">[<?php echo htmlspecialchars($sel['liner_id'] ?? '-'); ?>]</span>
-                                                    </div>
-                                                    <div class="flex items-center gap-2">
-                                                        <span
-                                                            class="text-[10px] bg-emerald-500 text-white px-2 py-0.5 rounded font-black uppercase tracking-widest">Art</span>
-                                                        <span
-                                                            class="text-[14px] font-bold text-gray-600 uppercase"><?php echo htmlspecialchars($sel['art_name'] ?? 'N/A'); ?></span>
-                                                        <span
-                                                            class="text-[10px] text-gray-400 font-black uppercase tracking-widest">[<?php echo htmlspecialchars($sel['art_id'] ?? '-'); ?>]</span>
-                                                    </div>
+                                            <?php endif; ?>
+                                        </td>
+                                        <td class="px-10 py-8">
+                                            <div class="space-y-2">
+                                                <div class="flex items-center gap-2">
+                                                    <span
+                                                        class="text-[10px] bg-gray-900 text-white px-2 py-0.5 rounded font-black uppercase tracking-widest">Frame</span>
+                                                    <span
+                                                        class="text-[14px] font-black text-gray-700 uppercase"><?php echo htmlspecialchars($sel['frame_name'] ?? 'N/A'); ?></span>
+                                                    <span
+                                                        class="text-[10px] text-amber-600 font-black uppercase tracking-widest">[<?php echo htmlspecialchars($sel['frame_id'] ?? '-'); ?>]</span>
                                                 </div>
-                                            </td>
-                                            <td class="px-10 py-8">
-                                                <span
-                                                    class="bg-emerald-100 text-emerald-600 px-4 py-1.5 rounded-full text-[12px] font-black uppercase tracking-widest">
-                                                    <?php echo $q['status']; ?>
-                                                </span>
-                                            </td>
-                                            <td class="px-10 py-8 text-[14px] text-gray-400 font-bold whitespace-nowrap">
-                                                <?php echo date('M d, Y', strtotime($q['created_at'])); ?>
-                                            </td>
-                                        </tr>
-                                    <?php endforeach; endif; ?>
-                            </tbody>
-                        </table>
+                                                <div class="flex items-center gap-2">
+                                                    <span
+                                                        class="text-[10px] bg-gray-400 text-white px-2 py-0.5 rounded font-black uppercase tracking-widest">Liner</span>
+                                                    <span
+                                                        class="text-[14px] font-bold text-gray-600 uppercase"><?php echo htmlspecialchars($sel['liner_name'] ?? 'None'); ?></span>
+                                                    <span
+                                                        class="text-[10px] text-gray-400 font-black uppercase tracking-widest">[<?php echo htmlspecialchars($sel['liner_id'] ?? '-'); ?>]</span>
+                                                </div>
+                                                <div class="flex items-center gap-2">
+                                                    <span
+                                                        class="text-[10px] bg-emerald-500 text-white px-2 py-0.5 rounded font-black uppercase tracking-widest">Art</span>
+                                                    <span
+                                                        class="text-[14px] font-bold text-gray-600 uppercase"><?php echo htmlspecialchars($sel['art_name'] ?? 'N/A'); ?></span>
+                                                    <span
+                                                        class="text-[10px] text-gray-400 font-black uppercase tracking-widest">[<?php echo htmlspecialchars($sel['art_id'] ?? '-'); ?>]</span>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="px-10 py-8">
+                                            <span
+                                                class="bg-emerald-100 text-emerald-600 px-4 py-1.5 rounded-full text-[12px] font-black uppercase tracking-widest">
+                                                <?php echo $q['status']; ?>
+                                            </span>
+                                        </td>
+                                        <td class="px-10 py-8 text-[14px] text-gray-400 font-bold whitespace-nowrap">
+                                            <?php echo date('M d, Y', strtotime($q['created_at'])); ?>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; endif; ?>
+                        </tbody>
+                    </table>
+                </div>
+                <?php if (count($quotes) > 0): ?>
+                    <div class="p-8 bg-gray-50/30 border-t border-gray-50 text-center">
+                        <a href="inquiries.php" class="inline-flex items-center gap-3 text-[14px] font-black uppercase tracking-widest text-gray-500 hover:text-amber-600 transition-all">
+                            Go to full inquiries list <i class="fa-solid fa-arrow-right"></i>
+                        </a>
                     </div>
-                    <?php if (count($quotes) > 0): ?>
-                        <div class="p-8 bg-gray-50/30 border-t border-gray-50 text-center">
-                            <a href="inquiries.php" class="inline-flex items-center gap-3 text-[14px] font-black uppercase tracking-widest text-gray-500 hover:text-amber-600 transition-all">
-                                Go to full inquiries list <i class="fa-solid fa-arrow-right"></i>
-                            </a>
+                <?php endif; ?>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
+            <!-- Service Health -->
+            <div class="bg-gray-900 text-white p-10 rounded-[2.5rem] shadow-xl">
+                <h3 class="text-[16px] font-black uppercase tracking-[0.2em] text-amber-500 mb-8">Service Health</h3>
+
+                <div class="space-y-6">
+                    <?php
+                    // Check SMTP Config
+                    $smtp = $pdo->query("SELECT value FROM settings WHERE key='smtp_host'")->fetchColumn();
+                    $smtp_ok = !empty($smtp);
+                    ?>
+                    <div class="flex items-center justify-between">
+                        <span class="text-[14px] uppercase font-bold text-gray-400 tracking-widest">SMTP Connectivity</span>
+                        <span class="<?php echo $smtp_ok ? 'text-emerald-400' : 'text-amber-400'; ?> text-[14px] font-black uppercase">
+                            <?php echo $smtp_ok ? 'Configured' : 'Missing'; ?>
+                        </span>
+                    </div>
+                    <div class="h-1.5 bg-white/5 rounded-full overflow-hidden">
+                        <div class="h-full <?php echo $smtp_ok ? 'bg-emerald-500' : 'bg-amber-500'; ?> transition-all duration-1000"
+                            style="width: <?php echo $smtp_ok ? '100%' : '30%'; ?>"></div>
+                    </div>
+
+                    <div class="pt-8 border-t border-white/5">
+                        <p class="text-[14px] text-gray-500 uppercase font-black tracking-widest mb-4">Storage Usage</p>
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-[16px] font-black">SQLite DB Size</span>
+                            <span class="text-[16px] font-black text-amber-500">
+                                <?php echo round(filesize(DB_PATH) / 1024, 2); ?> KB
+                            </span>
                         </div>
-                    <?php endif; ?>
+                    </div>
                 </div>
             </div>
 
-            <!-- Quick Actions / Status -->
-            <div class="space-y-6">
-                <div class="bg-gray-900 text-white p-10 rounded-[2.5rem] shadow-xl">
-                    <h3 class="text-[16px] font-black uppercase tracking-[0.2em] text-amber-500 mb-8">Service Health
-                    </h3>
-
-                    <div class="space-y-6">
-                        <?php
-                        // Check SMTP Config
-                        $smtp = $pdo->query("SELECT value FROM settings WHERE key='smtp_host'")->fetchColumn();
-                        $smtp_ok = !empty($smtp);
-                        ?>
-                        <div class="flex items-center justify-between">
-                            <span class="text-[14px] uppercase font-bold text-gray-400 tracking-widest">SMTP
-                                Connectivity</span>
-                            <span
-                                class="<?php echo $smtp_ok ? 'text-emerald-400' : 'text-amber-400'; ?> text-[14px] font-black uppercase">
-                                <?php echo $smtp_ok ? 'Configured' : 'Missing'; ?>
-                            </span>
-                        </div>
-                        <div class="h-1.5 bg-white/5 rounded-full overflow-hidden">
-                            <div class="h-full <?php echo $smtp_ok ? 'bg-emerald-500' : 'bg-amber-500'; ?> transition-all duration-1000"
-                                style="width: <?php echo $smtp_ok ? '100%' : '30%'; ?>"></div>
-                        </div>
-
-                        <div class="pt-8 border-t border-white/5">
-                            <p class="text-[14px] text-gray-500 uppercase font-black tracking-widest mb-4">Storage Usage
-                            </p>
-                            <div class="flex items-center justify-between mb-2">
-                                <span class="text-[16px] font-black">SQLite DB Size</span>
-                                <span class="text-[16px] font-black text-amber-500">
-                                    <?php echo round(filesize(DB_PATH) / 1024, 2); ?> KB
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="bg-white card p-10">
-                    <h3 class="text-[16px] font-black uppercase tracking-widest text-gray-400 mb-6">Database Management</h3>
-                    <p class="text-[16px] text-gray-500 mb-8 leading-relaxed">Ensure data integrity by regularly
-                        downloading the latest database snapshot or switching engines.</p>
-                    <a href="database.php"
-                        class="inline-flex items-center gap-3 bg-gray-100 hover:bg-gray-200 text-gray-900 px-8 py-4 rounded-2xl text-[14px] font-black uppercase tracking-widest transition-all">
-                        <i class="fa-solid fa-database"></i> Manage Database
-                    </a>
-                </div>
+            <!-- Database Management -->
+            <div class="bg-white card p-10">
+                <h3 class="text-[16px] font-black uppercase tracking-widest text-gray-400 mb-6">Database Management</h3>
+                <p class="text-[16px] text-gray-500 mb-8 leading-relaxed">Ensure data integrity by regularly
+                    downloading the latest database snapshot or switching engines.</p>
+                <a href="database.php"
+                    class="inline-flex items-center gap-3 bg-gray-100 hover:bg-gray-200 text-gray-900 px-8 py-4 rounded-2xl text-[14px] font-black uppercase tracking-widest transition-all">
+                    <i class="fa-solid fa-database"></i> Manage Database
+                </a>
             </div>
         </div>
     </main>
