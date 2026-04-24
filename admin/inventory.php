@@ -131,62 +131,86 @@ $title = ucfirst($type) . "s Inventory";
         .sidebar-link { transition: all 0.3s; color: #6c757d; }
         .sidebar-link:hover, .sidebar-link.active { color: #fff; background: rgba(255, 255, 255, 0.05); }
         .sidebar-link.active { border-right: 4px solid #f59e0b; }
-        .card { border-radius: 2rem; border: 1px solid #edf2f7; }
+        
+        .card { border-radius: 2.5rem; border: 1px solid #edf2f7; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05); }
         .img-preview-container { width: 100px; height: 100px; border-radius: 0; border: 1px solid #eee; overflow: hidden; position: relative; background: #f9f9f9; }
         .img-preview-full { width: 100%; height: 100%; object-fit: cover; }
         .img-preview-zoom { width: 500%; height: auto; max-width: none; object-fit: cover; object-position: top left; position: absolute; top: 0; left: 0; }
         
-        /* Aspect ratios for upload zone */
-        .ratio-art { aspect-ratio: 794 / 455; }
         .ratio-square { aspect-ratio: 1 / 1; }
+        
+        /* Custom Scrollbar for Sidebar */
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
     </style>
 </head>
-<body class="flex min-h-screen text-gray-800">
+<body class="h-[100dvh] overflow-hidden text-gray-800 relative flex bg-[#f8f9fa]">
 
-    <!-- Sidebar (Same as index) -->
-    <aside class="sidebar w-80 flex-shrink-0 flex flex-col hidden md:flex">
-        <div class="p-10">
-            <h1 class="text-white text-3xl font-black uppercase tracking-tighter">DecoraTV</h1>
-            <p class="text-[16px] text-amber-500 font-black uppercase tracking-[0.2em] mt-1">Management Studio</p>
+    <!-- Mobile Header -->
+    <div class="md:hidden fixed top-0 left-0 right-0 h-20 bg-white border-b border-gray-100 flex items-center justify-between px-6 z-[60]">
+        <h1 class="text-xl font-black uppercase tracking-tighter text-[#0f0f0f]">DecoraTV <span class="text-amber-500">Admin</span></h1>
+        <button onclick="toggleMobileMenu()" class="w-12 h-12 flex items-center justify-center bg-[#0f0f0f] text-white rounded-xl shadow-lg active:scale-95 transition-transform">
+            <i class="fa-solid fa-bars"></i>
+        </button>
+    </div>
+
+    <!-- Mobile Overlay -->
+    <div id="mobileOverlay" onclick="toggleMobileMenu()" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[70] hidden opacity-0 transition-opacity duration-300"></div>
+
+    <!-- Sidebar -->
+    <aside id="sidebarMenu" class="sidebar w-80 fixed md:static inset-y-0 left-0 z-[80] -translate-x-full md:translate-x-0 transition-transform duration-300 flex flex-col bg-[#0f0f0f] h-[100dvh] md:h-auto">
+        <!-- Sidebar Header -->
+        <div class="p-10 flex justify-between items-center flex-none">
+            <div>
+                <h1 class="text-white text-3xl font-black uppercase tracking-tighter">DecoraTV</h1>
+                <p class="text-[16px] text-amber-500 font-black uppercase tracking-[0.2em] mt-1">Management Studio</p>
+            </div>
+            <button onclick="toggleMobileMenu()" class="md:hidden text-gray-500 hover:text-white p-2">
+                <i class="fa-solid fa-xmark text-2xl"></i>
+            </button>
         </div>
 
-        <nav class="flex-1 mt-8 px-6 space-y-3">
-            <a href="index.php" class="sidebar-link flex items-center gap-4 px-8 py-5 rounded-2xl text-[16px] font-black uppercase tracking-widest">
-                <i class="fa-solid fa-chart-line w-6"></i> Dashboard
+        <!-- Scrollable Navigation Area -->
+        <div class="flex-1 overflow-y-auto custom-scrollbar px-4 pb-10">
+            <nav class="space-y-1 mt-2">
+            <a href="index.php" class="sidebar-link flex items-center gap-3 px-6 py-4 rounded-xl text-[14px] font-black uppercase tracking-widest">
+                <i class="fa-solid fa-chart-line w-5"></i> Dashboard
             </a>
-            <p class="text-[14px] text-gray-600 font-bold uppercase tracking-widest px-8 pt-8 pb-3">Inventory</p>
-            <a href="inventory.php?type=frame" class="sidebar-link <?php echo $type==='frame'?'active':''; ?> flex items-center gap-4 px-8 py-5 rounded-2xl text-[16px] font-black uppercase tracking-widest">
-                <i class="fa-solid fa-border-all w-6"></i> Frames
+            <p class="text-[11px] text-gray-600 font-black uppercase tracking-widest px-6 pt-6 pb-2">Inventory</p>
+            <a href="inventory.php?type=frame" class="sidebar-link <?php echo $type==='frame'?'active':''; ?> flex items-center gap-3 px-6 py-4 rounded-xl text-[14px] font-black uppercase tracking-widest">
+                <i class="fa-solid fa-border-all w-5"></i> Frames
             </a>
-            <a href="inventory.php?type=liner" class="sidebar-link <?php echo $type==='liner'?'active':''; ?> flex items-center gap-4 px-8 py-5 rounded-2xl text-[16px] font-black uppercase tracking-widest">
-                <i class="fa-solid fa-maximize w-6"></i> Liners
+            <a href="inventory.php?type=liner" class="sidebar-link <?php echo $type==='liner'?'active':''; ?> flex items-center gap-3 px-6 py-4 rounded-xl text-[14px] font-black uppercase tracking-widest">
+                <i class="fa-solid fa-maximize w-5"></i> Liners
             </a>
-            <a href="inventory.php?type=art" class="sidebar-link <?php echo $type==='art'?'active':''; ?> flex items-center gap-4 px-8 py-5 rounded-2xl text-[16px] font-black uppercase tracking-widest">
-                <i class="fa-solid fa-image w-6"></i> Arts
+            <a href="inventory.php?type=art" class="sidebar-link <?php echo $type==='art'?'active':''; ?> flex items-center gap-3 px-6 py-4 rounded-xl text-[14px] font-black uppercase tracking-widest">
+                <i class="fa-solid fa-image w-5"></i> Arts
             </a>
-            <p class="text-[14px] text-gray-600 font-bold uppercase tracking-widest px-8 pt-8 pb-3">System</p>
-            <a href="inquiries.php" class="sidebar-link flex items-center gap-4 px-8 py-5 rounded-2xl text-[16px] font-black uppercase tracking-widest text-gray-400">
-                <i class="fa-solid fa-rectangle-list w-6"></i> Inquiries
+            <p class="text-[11px] text-gray-600 font-black uppercase tracking-widest px-6 pt-6 pb-2">System</p>
+            <a href="inquiries.php" class="sidebar-link flex items-center gap-3 px-6 py-4 rounded-xl text-[14px] font-black uppercase tracking-widest text-gray-400">
+                <i class="fa-solid fa-rectangle-list w-5"></i> Inquiries
             </a>
-            <a href="users.php" class="sidebar-link flex items-center gap-4 px-8 py-5 rounded-2xl text-[16px] font-black uppercase tracking-widest text-gray-400">
-                <i class="fa-solid fa-users w-6"></i> Users
+            <a href="users.php" class="sidebar-link flex items-center gap-3 px-6 py-4 rounded-xl text-[14px] font-black uppercase tracking-widest text-gray-400">
+                <i class="fa-solid fa-users w-5"></i> Users
             </a>
-            <a href="settings.php" class="sidebar-link flex items-center gap-4 px-8 py-5 rounded-2xl text-[16px] font-black uppercase tracking-widest text-gray-400">
-                <i class="fa-solid fa-envelope w-6"></i> SMTP Config
+            <a href="settings.php" class="sidebar-link flex items-center gap-3 px-6 py-4 rounded-xl text-[14px] font-black uppercase tracking-widest text-gray-400">
+                <i class="fa-solid fa-envelope w-5"></i> SMTP Config
             </a>
-            <a href="database.php" class="sidebar-link flex items-center gap-4 px-8 py-5 rounded-2xl text-[16px] font-black uppercase tracking-widest text-gray-400">
-                <i class="fa-solid fa-database w-6"></i> Database
+            <a href="database.php" class="sidebar-link flex items-center gap-3 px-6 py-4 rounded-xl text-[14px] font-black uppercase tracking-widest text-gray-400">
+                <i class="fa-solid fa-database w-5"></i> Database
             </a>
+            <div class="pt-6 border-t border-white/5 mt-6">
+                <a href="logout.php" class="text-gray-500 hover:text-red-400 text-[14px] font-black uppercase tracking-widest transition-colors flex items-center gap-3 px-6 py-4">
+                    <i class="fa-solid fa-right-from-bracket"></i> Logout
+                </a>
+            </div>
         </nav>
-
-        <div class="p-10 border-t border-white/5">
-            <a href="logout.php" class="text-gray-500 hover:text-red-400 text-[16px] font-black uppercase tracking-widest transition-colors flex items-center gap-3">
-                <i class="fa-solid fa-right-from-bracket"></i> Logout
-            </a>
         </div>
     </aside>
 
-    <main class="flex-1 p-6 md:p-12 overflow-y-auto">
+    <main class="flex-1 overflow-y-auto custom-scrollbar mt-20 md:mt-0 p-6 md:p-12">
         <header class="flex flex-col md:flex-row md:items-center justify-between gap-8 mb-16">
             <div>
                 <h2 class="text-4xl font-black uppercase tracking-tighter">Manage <?php echo ucfirst($type); ?>s</h2>
@@ -413,6 +437,32 @@ $title = ucfirst($type) . "s Inventory";
             window.scrollTo(scrollConfig);
             document.documentElement.scrollTo(scrollConfig);
         }
+
+        // Mobile Menu Toggle
+        function toggleMobileMenu() {
+            const sidebar = document.getElementById('sidebarMenu');
+            const overlay = document.getElementById('mobileOverlay');
+            const isOpen = !sidebar.classList.contains('-translate-x-full');
+            
+            if (!isOpen) {
+                sidebar.classList.remove('-translate-x-full');
+                overlay.classList.remove('hidden');
+                setTimeout(() => overlay.classList.add('opacity-100'), 10);
+                document.body.style.overflow = 'hidden';
+            } else {
+                sidebar.classList.add('-translate-x-full');
+                overlay.classList.remove('opacity-100');
+                setTimeout(() => overlay.classList.add('hidden'), 300);
+                document.body.style.overflow = '';
+            }
+        }
+
+        // Auto-close on link click
+        document.querySelectorAll('#sidebarMenu a').forEach(link => {
+            link.addEventListener('click', () => {
+                if (window.innerWidth < 768) toggleMobileMenu();
+            });
+        });
     </script>
 </body>
 </html>
