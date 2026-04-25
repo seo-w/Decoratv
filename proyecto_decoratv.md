@@ -56,3 +56,23 @@ El botón de cotización es crítico, ya que actúa como el puente principal (co
 1. **Captura de Configuración:** El sistema extrae los nombres y los IDs de la combinación exacta (Frame + Liner + Arte). Estos IDs son los mismos que se muestran en tiempo real en la interfaz del simulador para garantizar consistencia.
 2. **Formulario de Prospección:** Posteriormente, la interfaz despliega un modal superpuesto solicitando los datos de contacto del usuario potencial, acompañado de un resumen visual claro de la selección previamente realizada.
 3. **Finalización y Envío:** Al confirmar y enviar el formulario, el sistema procesa toda la información capturada (Datos de Cliente + Selección Estética) empacando los datos para ser remitidos de manera automática, vía correo electrónico, directamente al equipo comercial o área de ventas.
+
+---
+
+## 4. Sistema de Notificaciones y SMTP
+
+Para garantizar que ninguna cotización se pierda, el sistema integra un motor de envío profesional:
+- **Motor de Envío:** Integración de **PHPMailer** para envíos autenticados mediante SMTP.
+- **Seguridad:** Soporte para TLS/SSL y contraseñas de aplicación (necesario para proveedores como Gmail).
+- **Log de Entregas:** Cada cotización registra en la base de datos si el correo fue enviado con éxito o si falló, permitiendo un seguimiento auditable desde el panel.
+- **Herramienta de Diagnóstico:** El panel administrativo incluye un botón de "Test Connection" para validar la configuración del servidor de correo en tiempo real.
+
+## 5. Panel de Administración y Gestión
+
+- **Dashboard de Inquiries:** La sección de consultas muestra indicadores visuales (badges verdes/rojos) para el estado del correo, permitiendo al administrador saber si debe contactar proactivamente al cliente en caso de error.
+- **Configuración Centralizada:** Un panel de "Settings" permite actualizar las credenciales SMTP y los correos receptores de forma segura y sin tocar código.
+
+## 6. Experiencia Visual Refinada
+
+- **Lightbox Personalizado:** Se ha implementado un visualizador de imágenes en alta resolución (Lightbox) centrado mediante Flexbox para una visualización perfecta.
+- **Estética de Marca:** El fondo del visualizador utiliza el color corporativo `#cfc1b4` con tipografías de alto contraste en tonos oscuros, reforzando la percepción de producto premium y sofisticado.

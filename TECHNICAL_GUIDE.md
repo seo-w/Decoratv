@@ -58,8 +58,23 @@ The system includes an automatic optimization engine (`includes/helpers.php`):
 - **Alpha-Preserve:** Keeps transparency for PNG frames.
 - **Compression:** Applies 85% quality to maintain "premium" looks with "lightweight" payloads.
 
-## 7. How to Extend
+## 7. Notification System & SMTP
+DecoraTV uses a professional-grade mailing system to ensure quote delivery:
+- **Engine:** Integrated **PHPMailer** for authenticated SMTP.
+- **Security:** Supports TLS/SSL and App Passwords for modern providers like Gmail.
+- **Reliability:** Every outgoing email is logged in the `quotes` table under `mail_sent`.
+- **Diagnostics:** The Admin Settings includes a "Test Connection" tool (`api/test_mail.php`) to verify connectivity.
+
+## 8. Dashboard Features
+- **Inquiries Tracking:** The `admin/inquiries.php` view displays a "Sent/Fail" status badge for every notification email, providing a fallback for the administrator if an email is not received.
+- **Centralized Settings:** The `admin/settings.php` panel allows real-time updates to SMTP credentials and receiver addresses without editing config files.
+
+## 9. Visual Experience Design
+- **Lightbox:** Implemented in `index.php` using Flexbox for perfect centering.
+- **Branding:** Background color set to `#cfc1b4` with high-contrast dark typography (`gray-900/40`) to maintain a premium feel.
+
+## 10. How to Extend
 - **New Tables:** Add the table definition to `database/schema.sql` and register it in `DBManager::get_required_tables()`.
 - **New Material Types:** Update `inventory.php` `$validTypes` and the DB `materials` table.
-- **UI Tweaks:** The design system is controlled via `index.css` and Tailwind utility classes (standardized to `gray-500` for text legibility).
+- **UI Tweaks:** The design system is controlled via `index.css` and Tailwind utility classes.
 - **Documentation:** Keep `proyecto_decoratv.md` (Spanish) and `TECHNICAL_GUIDE.md` (English) in sync for all major feature additions.

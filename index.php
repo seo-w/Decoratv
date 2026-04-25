@@ -228,10 +228,15 @@ $defArt   = !empty($arts) ? json_encode($arts[0]) : 'null';
     </div>
 
     <!-- Lightbox Modal (Moved inside #app for better visibility) -->
-    <div id="lightbox-modal" onclick="closeLightbox()" class="fixed inset-0 bg-black/95 z-[9999] hidden flex-col items-center justify-center p-4 cursor-zoom-out">
-        <img id="lightbox-img" src="" class="max-w-[95vw] max-h-[90vh] object-contain shadow-2xl rounded-xl">
-        <div class="mt-6 text-white/70 font-black uppercase tracking-[0.3em] text-sm">Click anywhere to close</div>
-        <button class="absolute top-6 right-6 text-white/50 hover:text-white transition-colors">
+    <!-- Lightbox Modal (Customized Background) -->
+    <div id="lightbox-modal" onclick="closeLightbox()" class="fixed inset-0 z-[9999] hidden items-center justify-center p-4 md:p-12 cursor-zoom-out" style="background-color: #cfc1b4;">
+        <div class="relative flex flex-col items-center justify-center w-full h-full">
+            <img id="lightbox-img" src="" class="max-w-full max-h-full object-contain shadow-[0_20px_50px_rgba(0,0,0,0.3)] rounded-2xl animate-in zoom-in-95 duration-300">
+            <div class="mt-8 text-gray-900/40 font-black uppercase tracking-[0.4em] text-[10px] md:text-xs">
+                <i class="fa-solid fa-compress-arrows-alt mr-2"></i> Click anywhere to close
+            </div>
+        </div>
+        <button class="absolute top-8 right-8 text-gray-900/20 hover:text-gray-900 transition-all hover:scale-110 active:scale-95">
             <i class="fa-solid fa-xmark text-4xl"></i>
         </button>
     </div>
@@ -377,12 +382,14 @@ $defArt   = !empty($arts) ? json_encode($arts[0]) : 'null';
             const img = document.getElementById('lightbox-img');
             img.src = src;
             modal.classList.remove('hidden');
+            modal.classList.add('flex');
             document.body.style.overflow = 'hidden';
         }
 
         function closeLightbox() {
             const modal = document.getElementById('lightbox-modal');
             modal.classList.add('hidden');
+            modal.classList.remove('flex');
             document.body.style.overflow = '';
         }
 
