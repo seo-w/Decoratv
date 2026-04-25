@@ -57,6 +57,8 @@ $defArt   = !empty($arts) ? json_encode($arts[0]) : 'null';
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.5);
         }
+
+        html { scrollbar-gutter: stable; }
     </style>
 </head>
 <body class="bg-gray-50 text-gray-900 selection:bg-amber-100 min-h-screen">
@@ -126,20 +128,37 @@ $defArt   = !empty($arts) ? json_encode($arts[0]) : 'null';
 
                 <!-- Selection Specs -->
                 <div class="mt-12 grid grid-cols-3 gap-8">
-                    <div class="glass-panel p-8 rounded-[2.5rem] flex flex-col items-center">
-                        <i class="fa-solid fa-border-all text-amber-600 mb-2"></i>
-                        <span class="text-[14px] text-gray-400 font-black uppercase tracking-widest mb-1">Frame</span>
-                        <p id="s-frame-name" class="text-[16px] font-black uppercase text-center">---</p>
+                    <!-- Frame Selection Spec -->
+                    <div onclick="handleLightbox('frame')" class="glass-panel p-0 rounded-[2.5rem] flex flex-col items-center overflow-hidden group cursor-pointer hover:shadow-xl transition-all border-2 border-transparent hover:border-amber-500/30">
+                        <div class="pt-8 pb-4 flex flex-col items-center">
+                            <i class="fa-solid fa-border-all text-amber-600 mb-2"></i>
+                            <span class="text-[14px] text-gray-400 font-black uppercase tracking-widest">Frame</span>
+                        </div>
+                        <div id="s-frame-preview" class="w-full aspect-square overflow-hidden hidden">
+                             <img id="s-frame-thumb" src="" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
+                        </div>
                     </div>
-                    <div class="glass-panel p-8 rounded-[2.5rem] flex flex-col items-center">
-                        <i class="fa-solid fa-maximize text-blue-500 mb-2"></i>
-                        <span class="text-[14px] text-gray-400 font-black uppercase tracking-widest mb-1">Liner</span>
-                        <p id="s-liner-name" class="text-[16px] font-black uppercase text-center">---</p>
+                    
+                    <!-- Liner Selection Spec -->
+                    <div onclick="handleLightbox('liner')" class="glass-panel p-0 rounded-[2.5rem] flex flex-col items-center overflow-hidden group cursor-pointer hover:shadow-xl transition-all border-2 border-transparent hover:border-blue-500/30">
+                        <div class="pt-8 pb-4 flex flex-col items-center">
+                            <i class="fa-solid fa-maximize text-blue-500 mb-2"></i>
+                            <span class="text-[14px] text-gray-400 font-black uppercase tracking-widest">Liner</span>
+                        </div>
+                        <div id="s-liner-preview" class="w-full aspect-square overflow-hidden hidden">
+                             <img id="s-liner-thumb" src="" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
+                        </div>
                     </div>
-                    <div class="glass-panel p-8 rounded-[2.5rem] flex flex-col items-center">
-                        <i class="fa-solid fa-palette text-emerald-500 mb-2"></i>
-                        <span class="text-[14px] text-gray-400 font-black uppercase tracking-widest mb-1">Artwork</span>
-                        <p id="s-art-name" class="text-[16px] font-black uppercase text-center">---</p>
+
+                    <!-- Art Selection Spec -->
+                    <div onclick="handleLightbox('art')" class="glass-panel p-0 rounded-[2.5rem] flex flex-col items-center overflow-hidden group cursor-pointer hover:shadow-xl transition-all border-2 border-transparent hover:border-emerald-500/30">
+                        <div class="pt-8 pb-4 flex flex-col items-center">
+                            <i class="fa-solid fa-palette text-emerald-500 mb-2"></i>
+                            <span class="text-[14px] text-gray-400 font-black uppercase tracking-widest">Artwork</span>
+                        </div>
+                        <div id="s-art-preview" class="w-full aspect-square overflow-hidden hidden">
+                             <img id="s-art-thumb" src="" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
+                        </div>
                     </div>
                 </div>
 
@@ -147,7 +166,7 @@ $defArt   = !empty($arts) ? json_encode($arts[0]) : 'null';
 
             <!-- Right: Panel Controls -->
             <div class="lg:col-span-4">
-                <div class="bg-white rounded-[3rem] shadow-2xl border border-gray-100 flex flex-col h-[700px] overflow-hide relative">
+                <div class="bg-white rounded-[3rem] shadow-2xl border border-gray-100 flex flex-col h-[700px] overflow-hidden relative">
                     <!-- UX Guide Title -->
                     <div class="px-8 pt-8">
                         <p class="text-[14px] font-black text-gray-400 uppercase tracking-[0.3em]">Customize your selection</p>
@@ -186,6 +205,15 @@ $defArt   = !empty($arts) ? json_encode($arts[0]) : 'null';
             </div>
 
         </div>
+    </div>
+
+    <!-- Lightbox Modal (Moved inside #app for better visibility) -->
+    <div id="lightbox-modal" onclick="closeLightbox()" class="fixed inset-0 bg-black/95 z-[9999] hidden flex-col items-center justify-center p-4 cursor-zoom-out">
+        <img id="lightbox-img" src="" class="max-w-[95vw] max-h-[90vh] object-contain shadow-2xl rounded-xl">
+        <div class="mt-6 text-white/70 font-black uppercase tracking-[0.3em] text-sm">Click anywhere to close</div>
+        <button class="absolute top-6 right-6 text-white/50 hover:text-white transition-colors">
+            <i class="fa-solid fa-xmark text-4xl"></i>
+        </button>
     </div>
 
     <!-- Quote Modal -->
@@ -248,7 +276,7 @@ $defArt   = !empty($arts) ? json_encode($arts[0]) : 'null';
         </div>
     </div>
 
-    <!-- Logic -->
+
     <script>
         const FRAMES = <?php echo json_encode($frames); ?>;
         const LINERS = <?php echo json_encode($liners); ?>;
@@ -265,14 +293,22 @@ $defArt   = !empty($arts) ? json_encode($arts[0]) : 'null';
             // Update Visualization
             if (state.frame) {
                 document.getElementById('v-frame-img').src = state.frame.image_path;
-                document.getElementById('s-frame-name').innerText = state.frame.name;
+                
+                // Update Thumbnail
+                const thumb = document.getElementById('s-frame-thumb');
+                thumb.src = state.frame.detail_image_path ? state.frame.detail_image_path : state.frame.image_path;
+                document.getElementById('s-frame-preview').classList.remove('hidden');
             }
 
             if (state.liner) {
                 document.getElementById('v-liner-img').src = state.liner.image_path;
                 document.getElementById('v-liner-img').classList.remove('hidden');
                 document.getElementById('v-liner-empty').classList.add('hidden');
-                document.getElementById('s-liner-name').innerText = state.liner.name;
+                
+                // Update Thumbnail
+                const thumb = document.getElementById('s-liner-thumb');
+                thumb.src = state.liner.detail_image_path ? state.liner.detail_image_path : state.liner.image_path;
+                document.getElementById('s-liner-preview').classList.remove('hidden');
                 
                 // Adaptive Scale
                 document.getElementById('v-art-container').style.width = '86%';
@@ -280,7 +316,7 @@ $defArt   = !empty($arts) ? json_encode($arts[0]) : 'null';
             } else {
                 document.getElementById('v-liner-img').classList.add('hidden');
                 document.getElementById('v-liner-empty').classList.remove('hidden');
-                document.getElementById('s-liner-name').innerText = '---';
+                document.getElementById('s-liner-preview').classList.add('hidden');
                 
                 // Full scale if no liner at all
                 document.getElementById('v-art-container').style.width = '91.5%';
@@ -289,10 +325,36 @@ $defArt   = !empty($arts) ? json_encode($arts[0]) : 'null';
 
             if (state.art) {
                 document.getElementById('v-art-img').src = state.art.image_path;
-                document.getElementById('s-art-name').innerText = state.art.name;
+                
+                // Update Thumbnail
+                const thumb = document.getElementById('s-art-thumb');
+                thumb.src = state.art.image_path;
+                document.getElementById('s-art-preview').classList.remove('hidden');
             }
 
             renderGrid();
+        }
+
+        function handleLightbox(type) {
+            let item = state[type];
+            if (!item) return;
+            let src = (type === 'art') ? item.image_path : (item.detail_image_path || item.image_path);
+            openLightbox(src);
+        }
+
+        function openLightbox(src) {
+            if (!src) return;
+            const modal = document.getElementById('lightbox-modal');
+            const img = document.getElementById('lightbox-img');
+            img.src = src;
+            modal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeLightbox() {
+            const modal = document.getElementById('lightbox-modal');
+            modal.classList.add('hidden');
+            document.body.style.overflow = '';
         }
 
         function switchTab(tab) {
