@@ -51,9 +51,59 @@ try {
     $s = [];
     foreach ($settingsRaw as $row) { $s[$row['key']] = $row['value']; }
 
+    // 3. Prepare Email
+    $adminEmail = $s['admin_email'] ?? 'admin@decoratv.com';
+    $fromEmail  = !empty($s['smtp_from_email']) ? $s['smtp_from_email'] : 'no-reply@' . $_SERVER['HTTP_HOST'];
+    $fromName   = $s['smtp_from_name'] ?? 'DecoraTV Studio';
+
+    $subject = "New Quote Request: $firstName $lastName";
+    
+    $sel = $data['selection'] ?? [];
+    $frame = $sel['frame_name'] ?? 'None';
+    $frameId = $sel['frame_id'] ?? '-';
+    $liner = $sel['liner_name'] ?? 'None';
+    $linerId = $sel['liner_id'] ?? '-';
+    $art = $sel['art_name'] ?? 'None';
+    $artId = $sel['art_id'] ?? '-';
+
+    $messageHtml = "
+    <html>
+    <body style='font-family: Arial, sans-serif; line-height: 1.6; color: #333;'>
+        <div style='max-width: 600px; margin: 0 auto; border: 1px solid #eee; padding: 20px; border-radius: 10px;'>
+            <h2 style='color: #f59e0b; text-transform: uppercase;'>New Design Quote</h2>
+            <p>You have received a new inquiry from the simulator.</p>
+            
+            <h3 style='border-bottom: 1px solid #eee; padding-bottom: 10px;'>Customer Info</h3>
+            <p><strong>Name:</strong> $firstName $lastName<br>
+               <strong>Email:</strong> $email<br>
+               <strong>Phone:</strong> $phone</p>
+            
+            <h3 style='border-bottom: 1px solid #eee; padding-bottom: 10px;'>Selection Details</h3>
+            <table style='width: 100%; border-collapse: collapse;'>
+                <tr><td style='padding: 8px 0;'><strong>Frame:</strong></td><td>$frame ($frameId)</td></tr>
+                <tr><td style='padding: 8px 0;'><strong>Liner:</strong></td><td>$liner ($linerId)</td></tr>
+                <tr><td style='padding: 8px 0;'><strong>Art:</strong></td><td>$art ($artId)</td></tr>
+            </table>
+            
+            <div style='margin-top: 30px; font-size: 12px; color: #999;'>
+                Sent from DecoraTV Management Studio
+            </div>
+        </div>
+    </body>
+    </html>";
+
+    $headers = "MIME-Version: 1.0" . "\r\n";
+    $headers .= "Content-type:text/html;charset=UTF-8" . "\r\n";
+    $headers .= "From: $fromName <$fromEmail>" . "\r\n";
+    $headers .= "Reply-To: $email" . "\r\n";
+    $headers .= "X-Mailer: PHP/" . phpversion();
+
+    $mailSent = @mail($adminEmail, $subject, $messageHtml, $headers);
+
     echo json_encode([
         'success' => true, 
         'message' => 'Your quote request has been registered. Our team will contact you soon.',
+        'mail_status' => $mailSent ? 'sent' : 'failed'
     ]);
 
 } catch (PDOException $e) {
