@@ -188,8 +188,12 @@ $quotes = $pdo->query("SELECT * FROM quotes ORDER BY created_at DESC")->fetchAll
                                             <i class="fa-solid fa-phone text-amber-600"></i> <?php echo htmlspecialchars($q['customer_phone']); ?>
                                         </p>
                                     <?php endif; ?>
-                                    <p class="text-[12px] text-gray-500 font-bold uppercase tracking-widest mt-4">
+                                    <p class="text-[12px] text-gray-500 font-bold uppercase tracking-widest mt-4 flex items-center gap-2">
                                         Submitted: <?php echo date('M d, Y - H:i', strtotime($q['created_at'])); ?>
+                                        <span class="ml-2 inline-flex items-center gap-1 <?php echo ($q['mail_sent'] ?? 0) == 1 ? 'text-emerald-500' : 'text-red-400'; ?>" title="<?php echo ($q['mail_sent'] ?? 0) == 1 ? 'Email sent successfully' : 'Email notification failed'; ?>">
+                                            <i class="fa-solid <?php echo ($q['mail_sent'] ?? 0) == 1 ? 'fa-circle-check' : 'fa-circle-xmark'; ?>"></i>
+                                            <span class="text-[10px] font-black uppercase tracking-tighter"><?php echo ($q['mail_sent'] ?? 0) == 1 ? 'Sent' : 'Fail'; ?></span>
+                                        </span>
                                     </p>
                                 </td>
                                 <td class="px-10 py-10">

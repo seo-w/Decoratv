@@ -483,7 +483,11 @@ $defArt   = !empty($arts) ? json_encode($arts[0]) : 'null';
             .then(res => res.json())
             .then(data => {
                 if (data.success) {
-                    alert(data.message);
+                    if (data.mail_status === 'failed') {
+                        alert('Your quote has been registered in our system, but we had a technical issue sending the confirmation email. Don\'t worry, our team will still see it!');
+                    } else {
+                        alert(data.message);
+                    }
                     closeQuoteModal();
                     e.target.reset();
                 } else {

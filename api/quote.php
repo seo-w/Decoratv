@@ -51,54 +51,83 @@ try {
     $s = [];
     foreach ($settingsRaw as $row) { $s[$row['key']] = $row['value']; }
 
-    // 3. Prepare Email
-    $adminEmail = $s['admin_email'] ?? 'admin@decoratv.com';
-    $fromEmail  = !empty($s['smtp_from_email']) ? $s['smtp_from_email'] : 'no-reply@' . $_SERVER['HTTP_HOST'];
-    $fromName   = $s['smtp_from_name'] ?? 'DecoraTV Studio';
+    // 3. Prepare Email via PHPMailer
+    require_once __DIR__ . '/../includes/PHPMailer/PHPMailer.php';
+    require_once __DIR__ . '/../includes/PHPMailer/SMTP.php';
+    require_once __DIR__ . '/../includes/PHPMailer/Exception.php';
 
-    $subject = "New Quote Request: $firstName $lastName";
-    
-    $sel = $data['selection'] ?? [];
-    $frame = $sel['frame_name'] ?? 'None';
-    $frameId = $sel['frame_id'] ?? '-';
-    $liner = $sel['liner_name'] ?? 'None';
-    $linerId = $sel['liner_id'] ?? '-';
-    $art = $sel['art_name'] ?? 'None';
-    $artId = $sel['art_id'] ?? '-';
+    $mail = new \PHPMailer\PHPMailer\PHPMailer(true);
+    $mailSent = false;
 
-    $messageHtml = "
-    <html>
-    <body style='font-family: Arial, sans-serif; line-height: 1.6; color: #333;'>
-        <div style='max-width: 600px; margin: 0 auto; border: 1px solid #eee; padding: 20px; border-radius: 10px;'>
-            <h2 style='color: #f59e0b; text-transform: uppercase;'>New Design Quote</h2>
-            <p>You have received a new inquiry from the simulator.</p>
-            
-            <h3 style='border-bottom: 1px solid #eee; padding-bottom: 10px;'>Customer Info</h3>
-            <p><strong>Name:</strong> $firstName $lastName<br>
-               <strong>Email:</strong> $email<br>
-               <strong>Phone:</strong> $phone</p>
-            
-            <h3 style='border-bottom: 1px solid #eee; padding-bottom: 10px;'>Selection Details</h3>
-            <table style='width: 100%; border-collapse: collapse;'>
-                <tr><td style='padding: 8px 0;'><strong>Frame:</strong></td><td>$frame ($frameId)</td></tr>
-                <tr><td style='padding: 8px 0;'><strong>Liner:</strong></td><td>$liner ($linerId)</td></tr>
-                <tr><td style='padding: 8px 0;'><strong>Art:</strong></td><td>$art ($artId)</td></tr>
-            </table>
-            
-            <div style='margin-top: 30px; font-size: 12px; color: #999;'>
-                Sent from DecoraTV Management Studio
+    try {
+        // Server settings
+        $mail->isSMTP();
+        $mail->Host       = $s['smtp_host'] ?? '';
+        $mail->SMTPAuth   = true;
+        $mail->Username   = $s['smtp_user'] ?? '';
+        $mail->Password   = $s['smtp_pass'] ?? '';
+        $mail->SMTPSecure = ($s['smtp_encryption'] ?? 'tls') === 'none' ? false : ($s['smtp_encryption'] ?? 'tls');
+        $mail->Port       = $s['smtp_port'] ?? 587;
+        $mail->CharSet    = 'UTF-8';
+
+        // Recipients
+        $fromEmail = !empty($s['smtp_from_email']) ? $s['smtp_from_email'] : ($s['smtp_user'] ?? 'no-reply@' . $_SERVER['HTTP_HOST']);
+        $fromName  = $s['smtp_from_name'] ?? 'DecoraTV Studio';
+        $mail->setFrom($fromEmail, $fromName);
+        $mail->addAddress($s['admin_email'] ?? 'admin@decoratv.com');
+        $mail->addReplyTo($email, "$firstName $lastName");
+
+        // Content
+        $mail->isHTML(true);
+        $mail->Subject = "New Quote Request: $firstName $lastName";
+        
+        $sel = $data['selection'] ?? [];
+        $frame = $sel['frame_name'] ?? 'None';
+        $frameId = $sel['frame_id'] ?? '-';
+        $liner = $sel['liner_name'] ?? 'None';
+        $linerId = $sel['liner_id'] ?? '-';
+        $art = $sel['art_name'] ?? 'None';
+        $artId = $sel['art_id'] ?? '-';
+
+        $mail->Body = "
+        <html>
+        <body style='font-family: Arial, sans-serif; line-height: 1.6; color: #333;'>
+            <div style='max-width: 600px; margin: 0 auto; border: 1px solid #eee; padding: 20px; border-radius: 10px;'>
+                <h2 style='color: #f59e0b; text-transform: uppercase;'>New Design Quote</h2>
+                <p>You have received a new inquiry from the simulator.</p>
+                
+                <h3 style='border-bottom: 1px solid #eee; padding-bottom: 10px;'>Customer Info</h3>
+                <p><strong>Name:</strong> $firstName $lastName<br>
+                <strong>Email:</strong> $email<br>
+                <strong>Phone:</strong> $phone</p>
+                
+                <h3 style='border-bottom: 1px solid #eee; padding-bottom: 10px;'>Selection Details</h3>
+                <table style='width: 100%; border-collapse: collapse;'>
+                    <tr><td style='padding: 8px 0;'><strong>Frame:</strong></td><td>$frame ($frameId)</td></tr>
+                    <tr><td style='padding: 8px 0;'><strong>Liner:</strong></td><td>$liner ($linerId)</td></tr>
+                    <tr><td style='padding: 8px 0;'><strong>Art:</strong></td><td>$art ($artId)</td></tr>
+                </table>
+                
+                <div style='margin-top: 30px; font-size: 12px; color: #999;'>
+                    Sent from DecoraTV Management Studio
+                </div>
             </div>
-        </div>
-    </body>
-    </html>";
+        </body>
+        </html>";
 
-    $headers = "MIME-Version: 1.0" . "\r\n";
-    $headers .= "Content-type:text/html;charset=UTF-8" . "\r\n";
-    $headers .= "From: $fromName <$fromEmail>" . "\r\n";
-    $headers .= "Reply-To: $email" . "\r\n";
-    $headers .= "X-Mailer: PHP/" . phpversion();
+        $mailSent = $mail->send();
+    } catch (\Exception $e) {
+        $mailSent = false;
+    }
 
-    $mailSent = @mail($adminEmail, $subject, $messageHtml, $headers);
+    $mailSentInt = $mailSent ? 1 : 0;
+
+    // 4. Update Quote with Mail Status
+    $quoteId = $pdo->lastInsertId();
+    if ($quoteId) {
+        $updateStmt = $pdo->prepare("UPDATE quotes SET mail_sent = ? WHERE id = ?");
+        $updateStmt->execute([$mailSentInt, $quoteId]);
+    }
 
     echo json_encode([
         'success' => true, 
