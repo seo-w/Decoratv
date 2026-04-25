@@ -10,6 +10,7 @@ CREATE TABLE IF NOT EXISTS materials (
     artist TEXT DEFAULT NULL, -- only for 'art'
     group_name TEXT DEFAULT 'General',
     internal_id TEXT UNIQUE NOT NULL, -- The ID from the user (campo ID)
+    detail_image_path TEXT DEFAULT NULL,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 

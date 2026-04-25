@@ -38,13 +38,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $group = $_POST['group_name'] ?? 'General';
 
     $imagePath = null;
+    $detailImagePath = null;
     $uploadSuccess = true;
+
+    // Handle Main Image
     if (!empty($_FILES['image']['name'])) {
         $imagePath = upload_material_image($_FILES['image'], $type);
         if (!$imagePath) {
             $uploadSuccess = false;
-            $error_info = error_get_last();
-            $message = "Error uploading image. PHP Error: " . ($error_info['message'] ?? 'Unknown');
+            $message = "Error uploading main image.";
+        }
+    }
+
+    // Handle Detail Image (For frames and liners)
+    if ($uploadSuccess && ($type === 'frame' || $type === 'liner') && !empty($_FILES['detail_image']['name'])) {
+        $detailImagePath = upload_material_image($_FILES['detail_image'], $type);
+        if (!$detailImagePath) {
+            $uploadSuccess = false;
+            $message = "Error uploading detail image.";
         }
     }
 
@@ -52,23 +63,35 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         try {
             if ($id) {
                 // Update
+                $updateFields = ["name = ?", "artist = ?", "group_name = ?", "internal_id = ?"];
+                $params = [$name, $artist, $group, $internal_id];
+
                 if ($imagePath) {
-                    $stmt = $pdo->prepare("UPDATE materials SET name = ?, image_path = ?, artist = ?, group_name = ?, internal_id = ? WHERE id = ? AND type = ?");
-                    $stmt->execute([$name, $imagePath, $artist, $group, $internal_id, $id, $type]);
-                } else {
-                    $stmt = $pdo->prepare("UPDATE materials SET name = ?, artist = ?, group_name = ?, internal_id = ? WHERE id = ? AND type = ?");
-                    $stmt->execute([$name, $artist, $group, $internal_id, $id, $type]);
+                    $updateFields[] = "image_path = ?";
+                    $params[] = $imagePath;
                 }
+                if ($detailImagePath) {
+                    $updateFields[] = "detail_image_path = ?";
+                    $params[] = $detailImagePath;
+                }
+
+                $params[] = $id;
+                $params[] = $type;
+                
+                $sql = "UPDATE materials SET " . implode(", ", $updateFields) . " WHERE id = ? AND type = ?";
+                $stmt = $pdo->prepare($sql);
+                $stmt->execute($params);
+                
                 header("Location: inventory.php?type=$type&success=1");
                 exit;
             } else {
                 // Insert
                 if ($imagePath) {
-                    $stmt = $pdo->prepare("INSERT INTO materials (type, name, image_path, artist, group_name, internal_id) VALUES (?, ?, ?, ?, ?, ?)");
-                    $stmt->execute([$type, $name, $imagePath, $artist, $group, $internal_id]);
+                    $stmt = $pdo->prepare("INSERT INTO materials (type, name, image_path, artist, group_name, internal_id, detail_image_path) VALUES (?, ?, ?, ?, ?, ?, ?)");
+                    $stmt->execute([$type, $name, $imagePath, $artist, $group, $internal_id, $detailImagePath]);
                     $message = "New " . ucfirst($type) . " added successfully.";
                 } else {
-                    $message = "Error: No image file selected.";
+                    $message = "Error: No main image file selected.";
                 }
             }
         } catch (PDOException $e) {
@@ -77,8 +100,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             } else {
                 $message = "Database Error: " . $e->getMessage();
             }
-
-            // Re-populate editItem on error so form doesn't clear
+            
+            // Re-populate editItem on error
             if ($id) {
                 $editItem = [
                     'id' => $id,
@@ -86,7 +109,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     'internal_id' => $internal_id,
                     'artist' => $artist,
                     'group_name' => $group,
-                    'image_path' => $_POST['existing_image'] ?? ''
+                    'image_path' => $_POST['existing_image'] ?? '',
+                    'detail_image_path' => $_POST['existing_detail_image'] ?? ''
                 ];
             }
         }
@@ -99,7 +123,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'internal_id' => $internal_id,
                 'artist' => $artist,
                 'group_name' => $group,
-                'image_path' => $_POST['existing_image'] ?? ''
+                'image_path' => $_POST['existing_image'] ?? '',
+                'detail_image_path' => $_POST['existing_detail_image'] ?? ''
             ];
         }
     }
@@ -229,7 +254,7 @@ $title = ucfirst($type) . "s Inventory";
 
     <!-- Sidebar -->
     <aside id="sidebarMenu"
-        class="sidebar w-80 fixed md:static inset-y-0 left-0 z-[80] -translate-x-full md:translate-x-0 transition-transform duration-300 flex flex-col bg-[#0f0f0f] h-[100dvh] md:h-auto">
+        class="sidebar w-72 fixed md:static inset-y-0 left-0 z-[80] -translate-x-full md:translate-x-0 transition-transform duration-300 flex flex-col bg-[#0f0f0f] h-[100dvh] md:h-auto">
         <!-- Sidebar Header -->
         <div class="p-10 flex justify-between items-center flex-none">
             <div>
@@ -311,9 +336,9 @@ $title = ucfirst($type) . "s Inventory";
             </div>
         <?php endif; ?>
 
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-10">
+        <div class="grid grid-cols-1 xl:grid-cols-3 gap-10">
             <!-- Add Form -->
-            <div class="lg:col-span-1">
+            <div class="xl:col-span-1">
                 <div class="bg-white card p-10 sticky top-10">
                     <div class="flex items-center justify-between mb-10">
                         <h3 class="text-[16px] font-black uppercase tracking-widest text-gray-500">
@@ -364,24 +389,53 @@ $title = ucfirst($type) . "s Inventory";
                                 placeholder="General"
                                 class="w-full bg-gray-50 border border-gray-100 rounded-2xl px-8 py-5 text-[16px] focus:outline-none focus:border-amber-500/50 transition-all">
                         </div>
-                        <div>
-                            <label
-                                class="block text-[14px] font-black uppercase tracking-[0.2em] text-gray-400 mb-3 ml-1">Texture
-                                / Image File <?php echo $editItem ? '(Optional)' : ''; ?></label>
-                            <div id="dropzone"
-                                class="relative w-full <?php echo $type === 'art' ? 'ratio-art' : 'ratio-square'; ?> bg-gray-50 border-2 border-dashed border-gray-200 flex items-center justify-center group hover:border-amber-300 transition-all cursor-pointer overflow-hidden">
-                                <input type="file" name="image" id="imageInput" <?php echo $editItem ? '' : 'required'; ?> class="absolute inset-0 opacity-0 z-10 cursor-pointer"
-                                    accept="image/jpeg, image/png, image/webp, image/avif">
-                                <div id="upload-prompt" class="text-center <?php echo $editItem ? 'hidden' : ''; ?>">
-                                    <i
-                                        class="fa-solid fa-cloud-arrow-up text-gray-300 group-hover:text-amber-500 text-3xl mb-3"></i>
-                                    <p class="text-[14px] font-black text-gray-500 uppercase tracking-widest">Choose
-                                        Image</p>
+                        <div class="<?php echo ($type === 'frame' || $type === 'liner') ? 'grid grid-cols-2 gap-6' : ''; ?>">
+                            <div>
+                                <label
+                                    class="block text-[14px] font-black uppercase tracking-[0.2em] text-gray-400 mb-3 ml-1">Texture
+                                    / Image File <?php echo $editItem ? '(Optional)' : ''; ?></label>
+                                <div id="dropzone"
+                                    class="relative w-full <?php echo $type === 'art' ? 'ratio-art' : 'ratio-square'; ?> bg-gray-50 border-2 border-dashed border-gray-200 flex items-center justify-center group hover:border-amber-300 transition-all cursor-pointer overflow-hidden">
+                                    <input type="file" name="image" id="imageInput" <?php echo $editItem ? '' : 'required'; ?> class="absolute inset-0 opacity-0 z-10 cursor-pointer"
+                                        accept="image/jpeg, image/png, image/webp, image/avif">
+                                    <div id="upload-prompt" class="text-center <?php echo $editItem ? 'hidden' : ''; ?>">
+                                        <i
+                                            class="fa-solid fa-cloud-arrow-up text-gray-300 group-hover:text-amber-500 text-3xl mb-3"></i>
+                                        <p class="text-[14px] font-black text-gray-500 uppercase tracking-widest">Choose
+                                            Image</p>
+                                    </div>
+                                    <img id="preview-img"
+                                        src="<?php echo $editItem ? '../' . $editItem['image_path'] : ''; ?>"
+                                        class="absolute <?php echo $type === 'art' ? 'inset-0 w-full h-full object-cover' : 'top-0 left-0 w-[500%] max-w-none h-auto object-cover origin-top-left'; ?> <?php echo $editItem ? '' : 'hidden'; ?>">
                                 </div>
-                                <img id="preview-img"
-                                    src="<?php echo $editItem ? '../' . $editItem['image_path'] : ''; ?>"
-                                    class="absolute <?php echo $type === 'art' ? 'inset-0 w-full h-full object-cover' : 'top-0 left-0 w-[500%] max-w-none h-auto object-cover origin-top-left'; ?> <?php echo $editItem ? '' : 'hidden'; ?>">
                             </div>
+                            
+                            <?php if ($type === 'frame' || $type === 'liner'): ?>
+                            <div>
+                                <label class="block text-[14px] font-black uppercase tracking-[0.2em] text-gray-400 mb-3 ml-1">Detail Image (Corner View)</label>
+                                <div id="dropzone-detail" class="relative w-full ratio-square bg-gray-50 border-2 border-dashed border-gray-200 flex items-center justify-center group hover:border-amber-300 transition-all cursor-pointer overflow-hidden">
+                                    <input type="file" name="detail_image" id="detailImageInput" class="absolute inset-0 opacity-0 z-10 cursor-pointer" accept="image/jpeg, image/png, image/webp, image/avif">
+                                    <div id="upload-prompt-detail" class="text-center <?php echo (isset($editItem) && !empty($editItem['detail_image_path'])) ? 'hidden' : ''; ?>">
+                                        <i class="fa-solid fa-camera-retro text-gray-300 group-hover:text-amber-500 text-3xl mb-3"></i>
+                                        <p class="text-[14px] font-black text-gray-500 uppercase tracking-widest">Corner View</p>
+                                    </div>
+                                    <img id="preview-img-detail" src="<?php echo (isset($editItem) && !empty($editItem['detail_image_path'])) ? '../' . $editItem['detail_image_path'] : ''; ?>" class="absolute inset-0 w-full h-full object-cover <?php echo (isset($editItem) && !empty($editItem['detail_image_path'])) ? '' : 'hidden'; ?>">
+                                </div>
+                                <?php if (isset($editItem)): ?>
+                                    <input type="hidden" name="existing_detail_image" value="<?php echo $editItem['detail_image_path']; ?>">
+                                <?php endif; ?>
+                            </div>
+                            <script>
+                                document.getElementById('detailImageInput').onchange = function(evt) {
+                                    const [file] = this.files;
+                                    if (file) {
+                                        document.getElementById('preview-img-detail').src = URL.createObjectURL(file);
+                                        document.getElementById('preview-img-detail').classList.remove('hidden');
+                                        document.getElementById('upload-prompt-detail').classList.add('hidden');
+                                    }
+                                };
+                            </script>
+                            <?php endif; ?>
                         </div>
 
                         <script>
@@ -431,16 +485,16 @@ $title = ucfirst($type) . "s Inventory";
             </div>
 
             <!-- List -->
-            <div class="lg:col-span-2">
+            <div class="xl:col-span-2">
                 <div class="bg-white card overflow-hidden">
                     <div class="overflow-x-auto">
                         <table class="w-full text-left">
                             <thead class="bg-gray-50/50 text-[14px] text-gray-400 font-black uppercase tracking-widest">
                                 <tr>
-                                    <th class="px-10 py-6">Preview</th>
-                                    <th class="px-10 py-6">Identification</th>
-                                    <th class="px-10 py-6">Category</th>
-                                    <th class="px-10 py-6 text-right w-40">Action</th>
+                                    <th class="px-6 py-6">Preview</th>
+                                    <th class="px-6 py-6">Identification</th>
+                                    <th class="px-6 py-6">Category</th>
+                                    <th class="px-6 py-6 text-right w-40">Action</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-50 text-[11px]">
@@ -453,35 +507,53 @@ $title = ucfirst($type) . "s Inventory";
                                 <?php else:
                                     foreach ($items as $item): ?>
                                         <tr class="hover:bg-gray-50/50 transition-colors">
-                                            <td class="px-10 py-8">
-                                                <div class="img-preview-container group shadow-sm cursor-pointer"
-                                                    onclick="openLightbox('../<?php echo $item['image_path']; ?>')">
-                                                    <img src="../<?php echo $item['image_path']; ?>"
-                                                        class="<?php echo $item['type'] === 'art' ? 'img-preview-full' : 'img-preview-zoom'; ?>"
-                                                        alt="Preview">
-                                                    <div
-                                                        class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                                                        <i class="fa-solid fa-magnifying-glass text-white text-[16px]"></i>
+                                            <td class="px-6 py-8">
+                                                <div class="flex gap-3">
+                                                    <!-- Main Texture -->
+                                                    <div class="img-preview-container group shadow-sm cursor-pointer relative"
+                                                        onclick="openLightbox('../<?php echo $item['image_path']; ?>')">
+                                                        <img src="../<?php echo $item['image_path']; ?>"
+                                                            class="<?php echo $item['type'] === 'art' ? 'img-preview-full' : 'img-preview-zoom'; ?>"
+                                                            alt="Preview">
+                                                        <div
+                                                            class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                                            <i class="fa-solid fa-magnifying-glass text-white text-[16px]"></i>
+                                                        </div>
                                                     </div>
+                                                    
+                                                    <!-- Corner Detail -->
+                                                    <?php if (!empty($item['detail_image_path'])): ?>
+                                                    <div class="img-preview-container group shadow-sm cursor-pointer relative"
+                                                        onclick="openLightbox('../<?php echo $item['detail_image_path']; ?>')">
+                                                        <img src="../<?php echo $item['detail_image_path']; ?>"
+                                                            class="img-preview-full"
+                                                            alt="Detail Preview">
+                                                        <div
+                                                            class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                                            <i class="fa-solid fa-camera text-white text-[16px]"></i>
+                                                        </div>
+                                                        <div class="absolute bottom-0 right-0 bg-amber-500 text-white text-[8px] px-1 font-bold uppercase tracking-tighter">HD</div>
+                                                    </div>
+                                                    <?php endif; ?>
                                                 </div>
                                             </td>
-                                            <td class="px-10 py-8 max-w-md">
-                                                <p class="text-[16px] font-black text-gray-800 uppercase">
+                                            <td class="px-6 py-8 min-w-[200px] max-w-xs">
+                                                <p class="text-[15px] font-black text-gray-800 uppercase">
                                                     <?php echo htmlspecialchars($item['name']); ?></p>
-                                                <p class="text-[14px] font-black text-amber-600 uppercase tracking-widest mt-1 break-all">
+                                                <p class="text-[12px] font-black text-amber-600 uppercase tracking-widest mt-1 break-all">
                                                     ID: <?php echo htmlspecialchars($item['internal_id']); ?></p>
                                                 <?php if ($item['artist']): ?>
-                                                    <p class="text-[14px] text-gray-500 italic">By:
+                                                    <p class="text-[12px] text-gray-500 italic">By:
                                                         <?php echo htmlspecialchars($item['artist']); ?></p>
                                                 <?php endif; ?>
                                             </td>
-                                            <td class="px-10 py-8">
+                                            <td class="px-6 py-8">
                                                 <span
-                                                    class="bg-gray-100 text-gray-500 px-4 py-1.5 rounded-full text-[12px] font-black uppercase tracking-widest">
+                                                    class="bg-gray-100 text-gray-500 px-4 py-1.5 rounded-full text-[12px] font-black uppercase tracking-widest whitespace-nowrap">
                                                     <?php echo htmlspecialchars($item['group_name']); ?>
                                                 </span>
                                             </td>
-                                            <td class="px-10 py-8 text-right">
+                                            <td class="px-6 py-8 text-right w-40">
                                                 <div class="flex items-center justify-end gap-2">
                                                     <a href="?type=<?php echo $type; ?>&edit=<?php echo $item['id']; ?>"
                                                         class="w-12 h-12 inline-flex items-center justify-center rounded-xl text-gray-300 hover:text-amber-500 hover:bg-amber-50 transition-all border border-transparent hover:border-amber-100">

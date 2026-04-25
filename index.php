@@ -7,12 +7,9 @@ $frames = $pdo->query("SELECT * FROM materials WHERE type='frame' ORDER BY name 
 $liners = $pdo->query("SELECT * FROM materials WHERE type='liner' ORDER BY name ASC")->fetchAll();
 $arts   = $pdo->query("SELECT * FROM materials WHERE type='art' ORDER BY name ASC")->fetchAll();
 
-// Add the "None" option for liners
-array_unshift($liners, ['id' => 'none', 'name' => 'None', 'image_path' => null, 'internal_id' => 'none']);
-
 // Default selections
 $defFrame = !empty($frames) ? json_encode($frames[0]) : 'null';
-$defLiner = json_encode($liners[0]);
+$defLiner = !empty($liners) ? json_encode($liners[0]) : 'null';
 $defArt   = !empty($arts) ? json_encode($arts[0]) : 'null';
 ?>
 <!DOCTYPE html>
@@ -271,7 +268,7 @@ $defArt   = !empty($arts) ? json_encode($arts[0]) : 'null';
                 document.getElementById('s-frame-name').innerText = state.frame.name;
             }
 
-            if (state.liner && state.liner.id !== 'none') {
+            if (state.liner) {
                 document.getElementById('v-liner-img').src = state.liner.image_path;
                 document.getElementById('v-liner-img').classList.remove('hidden');
                 document.getElementById('v-liner-empty').classList.add('hidden');
@@ -283,9 +280,9 @@ $defArt   = !empty($arts) ? json_encode($arts[0]) : 'null';
             } else {
                 document.getElementById('v-liner-img').classList.add('hidden');
                 document.getElementById('v-liner-empty').classList.remove('hidden');
-                document.getElementById('s-liner-name').innerText = 'None';
+                document.getElementById('s-liner-name').innerText = '---';
                 
-                // Adaptive Scale: Growth when no liner
+                // Full scale if no liner at all
                 document.getElementById('v-art-container').style.width = '91.5%';
                 document.getElementById('v-art-container').style.height = '85%';
             }
@@ -340,7 +337,6 @@ $defArt   = !empty($arts) ? json_encode($arts[0]) : 'null';
                         ${imgHtml}
                     </div>
                     <span class="text-[16px] font-black text-gray-800 text-center uppercase truncate w-full mb-1">${item.name}</span>
-                    <p class="text-[12px] text-gray-500 text-center font-bold tracking-widest uppercase">${item.internal_id}</p>
                     ${isSelected ? '<div class="absolute top-4 right-4 bg-amber-600 text-white rounded-full w-6 h-6 flex items-center justify-center shadow-lg"><i class="fa-solid fa-check text-[10px]"></i></div>' : ''}
                 `;
                 container.appendChild(btn);

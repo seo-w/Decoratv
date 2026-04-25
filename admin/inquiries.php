@@ -76,7 +76,7 @@ $quotes = $pdo->query("SELECT * FROM quotes ORDER BY created_at DESC")->fetchAll
     <div id="mobileOverlay" onclick="toggleMobileMenu()" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[70] hidden opacity-0 transition-opacity duration-300"></div>
 
     <!-- Sidebar -->
-    <aside id="sidebarMenu" class="sidebar w-80 fixed md:static inset-y-0 left-0 z-[80] -translate-x-full md:translate-x-0 transition-transform duration-300 flex flex-col bg-[#0f0f0f] h-[100dvh] md:h-auto">
+    <aside id="sidebarMenu" class="sidebar w-72 fixed md:static inset-y-0 left-0 z-[80] -translate-x-full md:translate-x-0 transition-transform duration-300 flex flex-col bg-[#0f0f0f] h-[100dvh] md:h-auto">
         <!-- Sidebar Header -->
         <div class="p-10 flex justify-between items-center flex-none">
             <div>
