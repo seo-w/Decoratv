@@ -46,13 +46,20 @@ The simulator uses a 3-layer absolute positioning system:
    - If NO Liner: Art scales to **86%** (filling the gap).
 3. **Frame Layer (z-20):** A PNG/JPG mask at **100%** size that encases everything else.
 
-## 5. Image Processing & Optimization
+## 5. Selection Tracking (Real-time IDs)
+The simulator implements a real-time feedback loop for material identification:
+- **Elements:** `display-frame-id`, `display-liner-id`, `display-art-id`.
+- **Logic:** The `updateUI()` function syncs these DOM elements with `state.{item}.internal_id`.
+- **UX:** IDs are styled with color-coded tracking (Amber/Blue/Emerald) to provide immediate visual confirmation of the active selection.
+
+## 6. Image Processing & Optimization
 The system includes an automatic optimization engine (`includes/helpers.php`):
 - **Auto-resize:** Downscales images larger than 1200px to maintain performance.
 - **Alpha-Preserve:** Keeps transparency for PNG frames.
 - **Compression:** Applies 85% quality to maintain "premium" looks with "lightweight" payloads.
 
-## 6. How to Extend
+## 7. How to Extend
 - **New Tables:** Add the table definition to `database/schema.sql` and register it in `DBManager::get_required_tables()`.
 - **New Material Types:** Update `inventory.php` `$validTypes` and the DB `materials` table.
 - **UI Tweaks:** The design system is controlled via `index.css` and Tailwind utility classes (standardized to `gray-500` for text legibility).
+- **Documentation:** Keep `proyecto_decoratv.md` (Spanish) and `TECHNICAL_GUIDE.md` (English) in sync for all major feature additions.

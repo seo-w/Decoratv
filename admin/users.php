@@ -152,7 +152,7 @@ $users = $stmt->fetchAll();
                 <i class="fa-solid fa-image w-5"></i> Arts
             </a>
             <p class="text-[11px] text-gray-600 font-black uppercase tracking-widest px-6 pt-6 pb-2">System</p>
-            <a href="inquiries.php" class="sidebar-link flex items-center gap-3 px-6 py-4 rounded-xl text-[14px] font-black uppercase tracking-widest">
+            <a href="inquiries.php" class="sidebar-link flex items-center gap-3 px-6 py-4 rounded-xl text-[14px] font-black uppercase tracking-widest text-gray-400">
                 <i class="fa-solid fa-rectangle-list w-5"></i> Inquiries
             </a>
             <a href="users.php" class="sidebar-link active flex items-center gap-3 px-6 py-4 rounded-xl text-[14px] font-black uppercase tracking-widest">

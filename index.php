@@ -126,6 +126,26 @@ $defArt   = !empty($arts) ? json_encode($arts[0]) : 'null';
 
                 <p class="text-center text-[16px] text-gray-500 mt-8 font-black uppercase tracking-[0.2em] opacity-80">Experimental Visualization Area - Not to Scale</p>
 
+                <!-- Selection IDs List: Displays internal IDs of selected items for reference -->
+                <div class="mt-8 flex flex-col items-center">
+                    <div class="bg-white/50 backdrop-blur-md rounded-[2rem] px-12 py-6 border border-white/60 shadow-sm">
+                        <ul class="flex flex-col gap-3 text-gray-900 font-black uppercase tracking-[0.15em] text-[15px]">
+                            <li class="flex items-center gap-4">
+                                <span class="text-gray-400">Frame:</span>
+                                <span id="display-frame-id" class="text-amber-600">---</span>
+                            </li>
+                            <li class="flex items-center gap-4">
+                                <span class="text-gray-400">Liner:</span>
+                                <span id="display-liner-id" class="text-blue-500">---</span>
+                            </li>
+                            <li class="flex items-center gap-4">
+                                <span class="text-gray-400">Artwork:</span>
+                                <span id="display-art-id" class="text-emerald-500">---</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
                 <!-- Selection Specs -->
                 <div class="mt-12 grid grid-cols-3 gap-8">
                     <!-- Frame Selection Spec -->
@@ -293,6 +313,8 @@ $defArt   = !empty($arts) ? json_encode($arts[0]) : 'null';
             // Update Visualization
             if (state.frame) {
                 document.getElementById('v-frame-img').src = state.frame.image_path;
+                // Update selection ID display
+                document.getElementById('display-frame-id').innerText = state.frame.internal_id;
                 
                 // Update Thumbnail
                 const thumb = document.getElementById('s-frame-thumb');
@@ -304,6 +326,8 @@ $defArt   = !empty($arts) ? json_encode($arts[0]) : 'null';
                 document.getElementById('v-liner-img').src = state.liner.image_path;
                 document.getElementById('v-liner-img').classList.remove('hidden');
                 document.getElementById('v-liner-empty').classList.add('hidden');
+                // Update selection ID display
+                document.getElementById('display-liner-id').innerText = state.liner.internal_id;
                 
                 // Update Thumbnail
                 const thumb = document.getElementById('s-liner-thumb');
@@ -317,6 +341,7 @@ $defArt   = !empty($arts) ? json_encode($arts[0]) : 'null';
                 document.getElementById('v-liner-img').classList.add('hidden');
                 document.getElementById('v-liner-empty').classList.remove('hidden');
                 document.getElementById('s-liner-preview').classList.add('hidden');
+                document.getElementById('display-liner-id').innerText = 'None';
                 
                 // Full scale if no liner at all
                 document.getElementById('v-art-container').style.width = '91.5%';
@@ -325,11 +350,15 @@ $defArt   = !empty($arts) ? json_encode($arts[0]) : 'null';
 
             if (state.art) {
                 document.getElementById('v-art-img').src = state.art.image_path;
+                // Update selection ID display
+                document.getElementById('display-art-id').innerText = state.art.internal_id;
                 
                 // Update Thumbnail
                 const thumb = document.getElementById('s-art-thumb');
                 thumb.src = state.art.image_path;
                 document.getElementById('s-art-preview').classList.remove('hidden');
+            } else {
+                document.getElementById('display-art-id').innerText = '---';
             }
 
             renderGrid();

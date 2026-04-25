@@ -85,6 +85,8 @@ foreach ($settingsRaw as $row) {
             <button onclick="toggleMobileMenu()" class="md:hidden text-gray-500 hover:text-white p-2">
                 <i class="fa-solid fa-xmark text-2xl"></i>
             </button>
+        </div>
+
         <!-- Scrollable Navigation Area -->
         <div class="flex-1 overflow-y-auto custom-scrollbar px-4 pb-10">
             <nav class="space-y-1 mt-2">
@@ -102,10 +104,10 @@ foreach ($settingsRaw as $row) {
                 <i class="fa-solid fa-image w-5"></i> Arts
             </a>
             <p class="text-[11px] text-gray-600 font-black uppercase tracking-widest px-6 pt-6 pb-2">System</p>
-            <a href="inquiries.php" class="sidebar-link flex items-center gap-3 px-6 py-4 rounded-xl text-[14px] font-black uppercase tracking-widest">
+            <a href="inquiries.php" class="sidebar-link flex items-center gap-3 px-6 py-4 rounded-xl text-[14px] font-black uppercase tracking-widest text-gray-400">
                 <i class="fa-solid fa-rectangle-list w-5"></i> Inquiries
             </a>
-            <a href="users.php" class="sidebar-link flex items-center gap-3 px-6 py-4 rounded-xl text-[14px] font-black uppercase tracking-widest">
+            <a href="users.php" class="sidebar-link flex items-center gap-3 px-6 py-4 rounded-xl text-[14px] font-black uppercase tracking-widest text-gray-400">
                 <i class="fa-solid fa-users w-5"></i> Users
             </a>
             <a href="settings.php" class="sidebar-link active flex items-center gap-3 px-6 py-4 rounded-xl text-[14px] font-black uppercase tracking-widest">

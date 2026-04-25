@@ -27,6 +27,11 @@ La interfaz ha sido diseñada bajo un concepto de **Estudio de Diseño Digital**
   - El **Arte** flota en el centro de la composición.
   - El **Liner** (Marialuisa) actúa como la base inferior de montaje.
 
+### Visualización de Identificadores (IDs)
+
+- **Transparencia Técnica:** Debajo del área de composición, el sistema despliega en tiempo real los IDs internos de los elementos seleccionados (Frame, Liner y Arte). 
+- **Propósito:** Facilita la comunicación entre el cliente y el asesor, permitiendo una referencia rápida y exacta de los materiales visualizados sin esperar al paso de cotización.
+
 ### Sidebar de Navegación
 
 - **Micro-detalles en Miniaturas:** Las miniaturas de marcos y liners emplean un zoom del 500% anclado a la esquina superior izquierda. Esta técnica permite al cliente validar al detalle características físicas como la veta de la madera o la textura del metal antes de hacer su elección.
@@ -48,6 +53,6 @@ Para garantizar la viabilidad de la implementación de esta lógica en cualquier
 
 El botón de cotización es crítico, ya que actúa como el puente principal (conversión) entre la fase de diseño lúdico y la etapa de venta directa:
 
-1. **Captura de Configuración:** Al momento de disparar el evento de cotización, el sistema debe extraer inmediatamente los nombres y los IDs de la combinación exacta actual que el usuario tiene en pantalla (Frame + Liner + Arte).
+1. **Captura de Configuración:** El sistema extrae los nombres y los IDs de la combinación exacta (Frame + Liner + Arte). Estos IDs son los mismos que se muestran en tiempo real en la interfaz del simulador para garantizar consistencia.
 2. **Formulario de Prospección:** Posteriormente, la interfaz despliega un modal superpuesto solicitando los datos de contacto del usuario potencial, acompañado de un resumen visual claro de la selección previamente realizada.
 3. **Finalización y Envío:** Al confirmar y enviar el formulario, el sistema procesa toda la información capturada (Datos de Cliente + Selección Estética) empacando los datos para ser remitidos de manera automática, vía correo electrónico, directamente al equipo comercial o área de ventas.
