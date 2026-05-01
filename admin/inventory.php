@@ -135,7 +135,7 @@ if (isset($_GET['success'])) {
 }
 
 // Fetch Items
-$stmt = $pdo->prepare("SELECT * FROM materials WHERE type = ? ORDER BY created_at DESC");
+$stmt = $pdo->prepare("SELECT * FROM materials WHERE type = ? ORDER BY internal_id ASC");
 $stmt->execute([$type]);
 $items = $stmt->fetchAll();
 

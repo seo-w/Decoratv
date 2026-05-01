@@ -3,9 +3,9 @@ require_once __DIR__ . '/config/database.php';
 $pdo = get_db_connection();
 
 // Load all materials from DB
-$frames = $pdo->query("SELECT * FROM materials WHERE type='frame' ORDER BY name ASC")->fetchAll();
-$liners = $pdo->query("SELECT * FROM materials WHERE type='liner' ORDER BY name ASC")->fetchAll();
-$arts   = $pdo->query("SELECT * FROM materials WHERE type='art' ORDER BY name ASC")->fetchAll();
+$frames = $pdo->query("SELECT * FROM materials WHERE type='frame' ORDER BY internal_id ASC")->fetchAll();
+$liners = $pdo->query("SELECT * FROM materials WHERE type='liner' ORDER BY internal_id ASC")->fetchAll();
+$arts   = $pdo->query("SELECT * FROM materials WHERE type='art' ORDER BY internal_id ASC")->fetchAll();
 
 // Default selections
 $defFrame = !empty($frames) ? json_encode($frames[0]) : 'null';
